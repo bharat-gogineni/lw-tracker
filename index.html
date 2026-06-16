@@ -1,0 +1,2945 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Last War helper</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #121214;
+      --body-bg:
+        radial-gradient(circle at 18% 8%, rgba(37, 217, 255, 0.16), transparent 32%),
+        radial-gradient(circle at 82% 0%, rgba(141, 255, 63, 0.1), transparent 34%),
+        linear-gradient(135deg, #121214 0%, #171a22 55%, #101114 100%);
+      --header-bg: linear-gradient(135deg, rgba(18, 18, 20, 0.9) 0%, rgba(21, 27, 36, 0.76) 58%, rgba(8, 37, 45, 0.66) 100%);
+      --header-copy: rgba(255, 255, 255, 0.84);
+      --panel: rgba(24, 26, 32, 0.86);
+      --ink: #f4f7ff;
+      --muted: #a8adbb;
+      --line: rgba(76, 92, 116, 0.42);
+      --accent: #25d9ff;
+      --accent-2: #8dff3f;
+      --danger: #ff5c8a;
+      --soft: rgba(37, 217, 255, 0.12);
+      --shadow: 0 0 34px rgba(37, 217, 255, 0.12), 0 18px 50px rgba(0, 0, 0, 0.48);
+      --field-bg: rgba(7, 10, 27, 0.82);
+      --card-bg: linear-gradient(145deg, rgba(28, 31, 40, 0.88), rgba(18, 18, 20, 0.78));
+      --metric-bg: rgba(7, 10, 27, 0.62);
+      --button-bg: rgba(9, 15, 38, 0.82);
+      --table-bg: rgba(7, 10, 27, 0.72);
+      --table-head-bg: #121936;
+      --table-head-ink: #dbeafe;
+    }
+
+    body[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f5f8ff;
+      --body-bg:
+        radial-gradient(circle at 18% 8%, rgba(37, 217, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 82% 0%, rgba(141, 255, 63, 0.16), transparent 32%),
+        linear-gradient(135deg, #f8fbff 0%, #edf4ff 55%, #f7fff1 100%);
+      --header-bg: linear-gradient(135deg, rgba(235, 246, 255, 0.92), rgba(248, 252, 255, 0.84));
+      --header-copy: rgba(25, 34, 50, 0.78);
+      --panel: rgba(255, 255, 255, 0.82);
+      --ink: #111827;
+      --muted: #526070;
+      --line: rgba(47, 67, 92, 0.22);
+      --accent: #0077ff;
+      --accent-2: #1fa84f;
+      --danger: #d9275d;
+      --soft: rgba(0, 119, 255, 0.1);
+      --shadow: 0 16px 42px rgba(37, 71, 108, 0.14), 0 0 22px rgba(0, 119, 255, 0.08);
+      --field-bg: rgba(255, 255, 255, 0.88);
+      --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(239, 246, 255, 0.76));
+      --metric-bg: rgba(245, 249, 255, 0.84);
+      --button-bg: rgba(255, 255, 255, 0.86);
+      --table-bg: rgba(255, 255, 255, 0.78);
+      --table-head-bg: #e8f1ff;
+      --table-head-ink: #172033;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--body-bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.4;
+      min-height: 100vh;
+      overflow-x: hidden;
+      perspective: 1500px;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: var(--ink);
+      padding: 28px clamp(16px, 4vw, 48px);
+      border-bottom: 1px solid rgba(49, 215, 255, 0.28);
+      box-shadow: 0 0 40px rgba(37, 217, 255, 0.14);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      max-width: 1120px;
+      color: var(--header-copy);
+      font-size: 16px;
+    }
+
+    main {
+      width: 100%;
+      margin: 0 auto;
+      padding: 22px clamp(8px, 1.5vw, 24px) 42px;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      position: relative;
+      z-index: 2;
+      transform-origin: 0 50%;
+      transform-style: preserve-3d;
+      transition: transform 520ms cubic-bezier(.2, .78, .18, 1), filter 520ms ease, opacity 520ms ease;
+      will-change: transform;
+    }
+
+    body.nav-open .page-shell {
+      transform: translate3d(300px, 0, -520px) rotateY(-24deg);
+      filter: saturate(0.85) brightness(0.82);
+      pointer-events: none;
+    }
+
+    .door-menu {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: min(320px, 84vw);
+      padding: 26px 18px;
+      z-index: 4;
+      background:
+        linear-gradient(145deg, rgba(17, 19, 25, 0.98), rgba(15, 29, 36, 0.96)),
+        radial-gradient(circle at 20% 10%, rgba(37, 217, 255, 0.22), transparent 32%);
+      border-right: 1px solid rgba(49, 215, 255, 0.28);
+      box-shadow: 30px 0 80px rgba(0, 0, 0, 0.55), inset -1px 0 0 rgba(141, 255, 63, 0.08);
+      transform: translate3d(-100%, 0, 0);
+      transition: transform 520ms cubic-bezier(.2, .78, .18, 1);
+      display: grid;
+      align-content: start;
+      gap: 18px;
+    }
+
+    body.nav-open .door-menu {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .door-menu::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent, rgba(49, 215, 255, 0.08));
+    }
+
+    .door-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+
+    .door-menu-title {
+      display: grid;
+      gap: 2px;
+    }
+
+    .door-menu-title strong {
+      font-size: 18px;
+    }
+
+    .door-menu-title span,
+    .door-menu label span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .door-nav {
+      display: grid;
+      gap: 10px;
+    }
+
+    .door-nav button {
+      width: 100%;
+      justify-content: flex-start;
+      min-height: 44px;
+    }
+
+    .door-nav button[aria-selected="true"] {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(49, 215, 255, 0.2), rgba(141, 255, 63, 0.12));
+      box-shadow: 0 0 22px rgba(49, 215, 255, 0.18);
+    }
+
+    .door-menu label {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.42);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 420ms ease;
+    }
+
+    body.nav-open .nav-scrim {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-trigger {
+      min-width: auto;
+      padding-inline: 12px;
+    }
+
+    .toolbar,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+      backdrop-filter: blur(18px);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      margin-top: -42px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .bento-dashboard {
+      display: grid;
+      grid-template-columns: minmax(280px, 1.4fr) repeat(2, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .bento-card {
+      min-height: 104px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .bento-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .bento-card strong {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .mini-graph {
+      width: 100%;
+      height: 48px;
+      margin-top: 12px;
+    }
+
+    .mini-graph path {
+      fill: none;
+      stroke: var(--accent-2);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 8px rgba(141, 255, 63, 0.5));
+    }
+
+    button,
+    .file-label {
+      border: 1px solid var(--line);
+      background: var(--button-bg);
+      color: var(--ink);
+      padding: 9px 12px;
+      min-height: 38px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 0 18px rgba(49, 215, 255, 0.08);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.danger {
+      color: var(--danger);
+      border-color: #f0b4ac;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font: inherit;
+      background: var(--field-bg);
+      color: var(--ink);
+      min-height: 38px;
+    }
+
+    input[type="number"] { text-align: right; }
+    input[type="file"] { display: none; }
+    #guideImageInput { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.7fr) minmax(0, 1.3fr);
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 16px;
+      overflow: clip;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 15px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    label span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric,
+    .income-card,
+    .resource-total {
+      background: var(--metric-bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      margin-top: 2px;
+    }
+
+    .metric span,
+    .income-card span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .income-card {
+      margin-bottom: 12px;
+      background: var(--metric-bg);
+    }
+
+    .income-card h4,
+    .resource-total h4 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .income-breakdown {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      margin: 10px 0 0;
+      gap: 5px 10px;
+      font-size: 13px;
+    }
+
+    .income-breakdown dt { color: var(--muted); }
+    .income-breakdown dd { margin: 0; font-weight: 800; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 980px;
+      background: var(--table-bg);
+      color: var(--ink);
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--table-head-bg);
+      color: var(--table-head-ink);
+      font-size: 12px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+
+    td.actions {
+      width: 132px;
+      text-align: center;
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .resource-total {
+      background: var(--metric-bg);
+    }
+
+    .resource-total dl {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      margin: 0;
+      gap: 5px 10px;
+      font-size: 13px;
+    }
+
+    .resource-total dt { color: var(--muted); }
+    .resource-total dd { margin: 0; font-weight: 800; }
+
+    .shortage { color: var(--danger); }
+    .covered { color: var(--accent-2); }
+    tr.editing-row td {
+      background: rgba(37, 217, 255, 0.08);
+    }
+
+    .note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: #b8f3ff;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .status-text {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .resource-name-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .calc-section[hidden] { display: none; }
+
+    .app-layout {
+      display: block;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .calc-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-group {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .nav-group summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      list-style-position: inside;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .calc-button {
+      text-align: left;
+      width: 100%;
+    }
+
+    .calc-button[aria-selected="true"] {
+      border-color: var(--accent);
+      background: var(--soft);
+      color: #b8f3ff;
+    }
+
+    .calc-button::after {
+      content: "";
+      display: block;
+      width: var(--progress, 38%);
+      height: 3px;
+      margin-top: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 12px rgba(49, 215, 255, 0.52);
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--metric-bg);
+    }
+
+    .result-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .result-card strong {
+      font-size: 20px;
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .guide-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--metric-bg);
+      overflow: hidden;
+    }
+
+    .guide-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+      background: #0a0f24;
+    }
+
+    .guide-card footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 10px;
+      align-items: center;
+    }
+
+    .map-canvas {
+      position: relative;
+      min-height: 420px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(49, 215, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49, 215, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.16), transparent 48%),
+        rgba(7, 10, 27, 0.8);
+      background-size: 32px 32px, 32px 32px, auto, auto;
+    }
+
+    .map-point {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 96px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 6px 8px;
+      background: rgba(8, 13, 34, 0.9);
+      box-shadow: 0 0 18px rgba(49, 215, 255, 0.28);
+      font-size: 12px;
+    }
+
+    .map-point strong { display: block; }
+
+    .map-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: 1fr; }
+      .bento-dashboard { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { margin-top: -28px; }
+    }
+
+    @media (max-width: 620px) {
+      header { padding: 22px 12px 42px; }
+      main { padding-inline: 8px; }
+      .panel { padding: 12px; }
+      body.nav-open .page-shell {
+        transform: translate3d(74vw, 0, -260px) rotateY(-18deg);
+      }
+      .summary,
+      .field-grid,
+      .quick-grid,
+      .bento-dashboard { grid-template-columns: 1fr; }
+      .button-row,
+      button,
+      .file-label { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page-shell,
+      .door-menu,
+      .nav-scrim {
+        transition: none;
+      }
+
+      body.nav-open .page-shell {
+        transform: translate3d(280px, 0, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particleCanvas" aria-hidden="true"></canvas>
+  <aside class="door-menu" id="doorMenu" aria-label="Workspace menu">
+    <div class="door-menu-header">
+      <div class="door-menu-title">
+        <strong>Command Menu</strong>
+        <span>Open door navigation</span>
+      </div>
+      <button id="closeDoorNavBtn" type="button" aria-label="Close menu">X</button>
+    </div>
+    <nav class="door-nav" aria-label="Primary sections">
+      <button class="section-pill" data-section="rss">RSS Planner</button>
+      <button class="section-pill" data-section="heroes">Hero Tracker</button>
+      <button class="section-pill" data-section="overlord">Overlord Tracker</button>
+      <button class="section-pill" data-section="calculator">Calculators</button>
+    </nav>
+    <label for="toolNavigator">
+      <span>All tools</span>
+      <select id="toolNavigator" aria-label="Jump to RSS, hero tools, Overlord tools, or calculator module"></select>
+    </label>
+  </aside>
+  <button class="nav-scrim" id="navScrim" type="button" aria-label="Close menu"></button>
+  <div class="page-shell" id="pageShell">
+    <header>
+      <h1>Last War helper</h1>
+      <p>Gump G0KU's personal toolset for planning, tracking, and squeezing more signal out of Last War progression.</p>
+    </header>
+
+    <main>
+    <section class="toolbar" aria-label="Calculator actions">
+      <span class="pill">Autosaves in this browser</span>
+      <div class="button-row">
+        <button class="menu-trigger primary" id="openDoorNavBtn" type="button" aria-expanded="false" aria-controls="doorMenu">Menu</button>
+        <button class="primary" id="addItemBtn">Add Upgrade</button>
+        <button id="themeToggleBtn" type="button">Light Mode</button>
+        <button id="exportJsonBtn">Export JSON</button>
+        <label class="file-label" for="importJsonInput">Import JSON</label>
+        <input id="importJsonInput" type="file" accept="application/json">
+        <button class="danger" id="resetBtn">Reset</button>
+        <span class="status-text" id="importStatus"></span>
+      </div>
+    </section>
+
+    <section class="bento-dashboard" aria-label="Dashboard metrics">
+      <article class="bento-card">
+        <span>Live Players</span>
+        <strong id="livePlayerCount">12,480</strong>
+        <svg class="mini-graph" viewBox="0 0 240 48" aria-hidden="true">
+          <path d="M4 35 C 38 8, 62 44, 94 22 S 154 14, 184 28 S 220 12, 236 20"></path>
+        </svg>
+      </article>
+      <article class="bento-card">
+        <span>Tool Modules</span>
+        <strong id="moduleCount">0</strong>
+      </article>
+      <article class="bento-card">
+        <span>Active Workspace</span>
+        <strong id="activeWorkspaceLabel">RSS</strong>
+      </article>
+    </section>
+
+    <div class="app-layout">
+      <div class="stack">
+        <div class="grid calc-section" id="rssSection">
+          <aside class="stack">
+            <section class="panel">
+              <h2>Plan Settings</h2>
+              <p class="note">RSS Planner is its own workspace for Food, Iron, Gold, and Oil.</p>
+              <div class="field-grid">
+                <label>
+                  <span>Plan name</span>
+                  <input id="planName" type="text">
+                </label>
+                <label>
+                  <span>Days to project</span>
+                  <input id="daysLeft" type="number" min="0" step="1">
+                </label>
+              </div>
+
+              <h3>Resources</h3>
+              <p class="note">Resources are fixed to Food, Iron, Gold, and Oil so the planner stays focused on core RSS.</p>
+            </section>
+
+            <section class="panel">
+              <h2>Income Sources</h2>
+              <div id="incomeInputs"></div>
+              <p class="note">Enter your total production rate per hour for each resource, then set how many hours per day to count.</p>
+            </section>
+          </aside>
+
+          <section class="stack">
+            <section class="panel">
+              <h2>Upgrade Plan</h2>
+              <div class="summary">
+                <div class="metric">
+                  <span>Upgrades planned</span>
+                  <strong id="itemsCount">0</strong>
+                </div>
+                <div class="metric">
+                  <span>Resources tracked</span>
+                  <strong id="resourceCount">0</strong>
+                </div>
+                <div class="metric">
+                  <span>Largest wait</span>
+                  <strong id="largestWait">0d</strong>
+                </div>
+                <div class="metric">
+                  <span>Projection status</span>
+                  <strong id="planStatus">Ready</strong>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead id="planHead"></thead>
+                  <tbody id="planBody"></tbody>
+                </table>
+              </div>
+              <p class="note">Current and target can represent levels. Quantity is handy for repeated research, troops, or shop buys.</p>
+            </section>
+
+            <section class="panel">
+              <h2>RSS Totals</h2>
+              <div id="totals" class="totals"></div>
+            </section>
+          </section>
+        </div>
+
+        <section class="panel calc-section" id="calculatorSection" hidden>
+          <h2 id="quickTitle">Calculator</h2>
+          <p class="note" id="quickDescription"></p>
+          <label>
+            <span>Calculator module (same list as <strong>All tools</strong> above; hero progression lives in <strong>Hero Tracker</strong>)</span>
+            <select id="calculatorPicker"></select>
+          </label>
+          <div class="quick-grid" id="quickInputs"></div>
+          <div class="result-grid" id="quickResults"></div>
+        </section>
+
+        <section class="panel calc-section" id="heroesSection" hidden>
+          <h2>Hero Tracker</h2>
+          <p class="note"><strong>Hero EXP</strong> uses the built-in per-level table (to 175) plus an optional rate for higher levels. <strong>Hero Shards</strong> use the fixed 0-5 star tier table, while <strong>Weapon Shards</strong> use the fixed 0-30 requirement table. Owned EXP and shards drive <strong>Ready</strong> the same way.</p>
+          <div class="field-grid">
+            <label>
+              <span>Hero name</span>
+              <input id="heroName" type="text" placeholder="Kimberly, Tesla, DVA">
+            </label>
+            <label>
+              <span>Current level</span>
+              <input id="heroLevel" type="number" min="0" step="1">
+            </label>
+            <label>
+              <span>Target level</span>
+              <input id="heroTargetLevel" type="number" min="0" step="1">
+            </label>
+            <label>
+              <span>Owned EXP</span>
+              <input id="heroOwnedExp" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>EXP per level after 175</span>
+              <input id="heroExpBeyondRate" type="number" min="0" step="any" title="Optional rate used only when target level is above the built-in table">
+            </label>
+            <label>
+              <span>From Star</span>
+              <input id="heroFromStar" type="number" min="0" max="5" step="1" title="Current hero star, 0 to 5">
+            </label>
+            <label>
+              <span>From Tier</span>
+              <input id="heroFromTier" type="number" min="0" max="4" step="1" title="Current tier within the star, 0 to 4">
+            </label>
+            <label>
+              <span>To Star</span>
+              <input id="heroToStar" type="number" min="0" max="5" step="1" title="Target hero star, 0 to 5">
+            </label>
+            <label>
+              <span>To Tier</span>
+              <input id="heroToTier" type="number" min="0" max="4" step="1" title="Target tier within the star, 0 to 4">
+            </label>
+            <label>
+              <span>Owned hero shards</span>
+              <input id="heroOwnedStarShards" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>Weapon step (current)</span>
+              <input id="heroWeaponCurrent" type="number" min="0" step="1" title="Current generic weapon upgrade step">
+            </label>
+            <label>
+              <span>Weapon step (target)</span>
+              <input id="heroWeaponTarget" type="number" min="0" step="1">
+            </label>
+            <label>
+              <span>Owned weapon shards</span>
+              <input id="heroOwnedWeaponShards" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>Role / squad</span>
+              <input id="heroRole" type="text" placeholder="Main squad, air, wall, rally">
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="addHeroBtn">Add Hero</button>
+            <button id="cancelHeroEditBtn" hidden>Cancel Edit</button>
+          </div>
+          <div class="result-grid" id="heroTrackerSummary"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Hero</th>
+                  <th>Role</th>
+                  <th>Level</th>
+                  <th>EXP needed</th>
+                  <th>Max HQ</th>
+                  <th>Hero star</th>
+                  <th>Owned hero shards</th>
+                  <th>Hero shards needed</th>
+                  <th>EW level</th>
+                  <th>Owned weapon shards</th>
+                  <th>Weapon shards needed</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="heroTrackerRows"></tbody>
+            </table>
+          </div>
+          <p class="note"><strong>EXP needed</strong> sums the in-game table for each level step (and your optional rate past 175). <strong>Max HQ</strong> is the highest HQ band required on that level path. Hero stars use five tiers per star: 0-1 star costs 5 each, 1-2 costs 10, 2-3 costs 20, 3-4 costs 60, and 4-5 costs 100. Use 5 star / 0 tier for max star. Hover a cell for still-short hints. <strong>Ready</strong> means all three shortfalls are zero.</p>
+        </section>
+
+        <section class="panel calc-section" id="overlordSection" hidden>
+          <h2>Overlord Tracker</h2>
+          <p class="note">Track one Overlord profile across Promotion, Skills, Training, and Bond Rating. Requirement tables are based on the uploaded workbook.</p>
+          <div class="field-grid">
+            <label>
+              <span>Overlord name</span>
+              <input id="overlordName" type="text" placeholder="Main Overlord">
+            </label>
+            <label>
+              <span>Promotion level current</span>
+              <input id="overlordPromotionCurrent" type="number" min="0" max="60" step="1">
+            </label>
+            <label>
+              <span>Promotion level target</span>
+              <input id="overlordPromotionTarget" type="number" min="0" max="60" step="1">
+            </label>
+            <label>
+              <span>Owned promotion shards</span>
+              <input id="overlordOwnedShards" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>Training level current</span>
+              <input id="overlordTrainingCurrent" type="number" min="1" max="801" step="1">
+            </label>
+            <label>
+              <span>Training level target</span>
+              <input id="overlordTrainingTarget" type="number" min="1" max="801" step="1">
+            </label>
+            <label>
+              <span>Owned guidebooks</span>
+              <input id="overlordOwnedGuidebooks" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>Owned certificates</span>
+              <input id="overlordOwnedCertificates" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>Skill level current</span>
+              <input id="overlordSkillCurrent" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Skill level target</span>
+              <input id="overlordSkillTarget" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Owned skill badges</span>
+              <input id="overlordOwnedSkillBadges" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>Bond rating current</span>
+              <select id="overlordBondCurrent"></select>
+            </label>
+            <label>
+              <span>Bond rating target</span>
+              <select id="overlordBondTarget"></select>
+            </label>
+            <label>
+              <span>Owned bond badges</span>
+              <input id="overlordOwnedBondBadges" type="number" min="0" step="any">
+            </label>
+          </div>
+          <div class="result-grid" id="overlordSummary"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Current to target</th>
+                  <th>Needed</th>
+                  <th>Owned</th>
+                  <th>Short</th>
+                </tr>
+              </thead>
+              <tbody id="overlordRows"></tbody>
+            </table>
+          </div>
+          <p class="note" id="overlordUnlocks"></p>
+        </section>
+
+        <section class="panel calc-section" id="mapsSection" hidden>
+          <h2>Map Planning</h2>
+          <p class="note">Plan seasonal targets, treasure routes, supply locations, hive layouts, capitol paths, and war objectives.</p>
+          <div class="field-grid">
+            <label>
+              <span>Map type</span>
+              <select id="mapType"></select>
+            </label>
+            <label>
+              <span>Plan name</span>
+              <input id="mapPlanName" type="text">
+            </label>
+            <label>
+              <span>Rally / hive X</span>
+              <input id="mapBaseX" type="number" min="0" max="100" step="any">
+            </label>
+            <label>
+              <span>Rally / hive Y</span>
+              <input id="mapBaseY" type="number" min="0" max="100" step="any">
+            </label>
+          </div>
+          <h3>Add Objective</h3>
+          <div class="field-grid">
+            <label>
+              <span>Name</span>
+              <input id="mapObjectiveName" type="text" placeholder="Stronghold, supply, artifact, route point">
+            </label>
+            <label>
+              <span>Type</span>
+              <select id="mapObjectiveType">
+                <option>Stronghold</option>
+                <option>City</option>
+                <option>Gate</option>
+                <option>Supply</option>
+                <option>Artifact</option>
+                <option>Hive</option>
+                <option>Route</option>
+              </select>
+            </label>
+            <label>
+              <span>X coordinate</span>
+              <input id="mapObjectiveX" type="number" min="0" max="100" step="any">
+            </label>
+            <label>
+              <span>Y coordinate</span>
+              <input id="mapObjectiveY" type="number" min="0" max="100" step="any">
+            </label>
+            <label>
+              <span>Priority</span>
+              <select id="mapObjectivePriority">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </label>
+            <label>
+              <span>Status</span>
+              <select id="mapObjectiveStatus">
+                <option>Planned</option>
+                <option>Scouted</option>
+                <option>Claimed</option>
+                <option>Skipped</option>
+              </select>
+            </label>
+          </div>
+          <button id="addMapObjectiveBtn">Add Objective</button>
+          <div class="map-summary" id="mapSummary"></div>
+          <div class="map-canvas" id="mapCanvas"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Objective</th><th>Type</th><th>Coords</th><th>Priority</th><th>Status</th><th>Distance</th><th></th></tr>
+              </thead>
+              <tbody id="mapObjectiveRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel calc-section" id="guidesSection" hidden>
+          <h2>Guide Images</h2>
+          <p class="note">Add screenshots or guide images you create. They are saved in this browser for this local tool.</p>
+          <div class="field-grid">
+            <label>
+              <span>Guide title</span>
+              <input id="guideTitle" type="text" placeholder="Example: HQ 31 prep checklist">
+            </label>
+            <label>
+              <span>Image file</span>
+              <input id="guideImageInput" type="file" accept="image/*">
+            </label>
+          </div>
+          <button id="addGuideBtn">Add Guide Image</button>
+          <div class="guide-grid" id="guideGrid"></div>
+        </section>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "last-war-rss-calculator-v9";
+    const EXPORT_VERSION = 2;
+    const numberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+    const priorities = ["High", "Medium", "Low"];
+    const fixedResourceNames = ["Food", "Iron", "Gold", "Oil"];
+    const mapTypes = [
+      "Season 6 - Lost Rainforest",
+      "Season 5 - Wild West",
+      "Season 4 - Evernight Isle",
+      "Season 3 - Golden Realm",
+      "Season 2 - Polar Storm",
+      "Season 1 - Crimson Plague",
+      "Scattered Supplies",
+      "Desert Artifacts",
+      "All Seasons Hive Planning"
+    ];
+
+    /** Last War: EXP for each level transition (index 0 = 1→2 … index 173 = 174→175) and HQ band gate for that step. */
+    const GAME_HERO_LEVEL_UP_EXP = [
+      100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2300,2700,3200,3900,4600,5500,6600,8000,9500,12000,14000,17000,20000,24000,29000,35000,41000,49000,59000,71000,85000,110000,130000,150000,180000,220000,260000,310000,370000,440000,530000,630000,760000,910000,1100000,1400000,1600000,1900000,2100000,2300000,2500000,2800000,3100000,3400000,3700000,4100000,4500000,4900000,5400000,5900000,6500000,7200000,7900000,8700000,9500000,11000000,12000000,13000000,13000000,14000000,14000000,15000000,16000000,17000000,18000000,19000000,20000000,21000000,22000000,23000000,24000000,25000000,26000000,27000000,28000000,30000000,31000000,33000000,35000000,37000000,39000000,41000000,43000000,45000000,47000000,49000000,51000000,53000000,55000000,57000000,59000000,61000000,63000000,65000000,67000000,69000000,71000000,73000000,75000000,77000000,79000000,81000000,83000000,85000000,87000000,89000000,91000000,93000000,95000000,97000000,100000000,105000000,110000000,115000000,120000000,125000000,130000000,135000000,140000000,145000000,150000000,155000000,160000000,165000000,170000000,175000000,180000000,185000000,200000000,215000000,230000000,245000000,260000000,275000000,290000000,305000000,320000000,335000000,350000000,365000000,380000000,395000000,410000000,435000000,460000000,485000000,510000000,535000000,560000000,585000000,610000000,635000000,660000000
+    ];
+    const GAME_HERO_LEVEL_UP_HQ = [
+      1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8,9,9,9,9,9,10,10,10,10,10,11,11,11,11,11,12,12,12,12,12,13,13,13,13,13,14,14,14,14,14,15,15,15,15,15,16,16,16,16,16,17,17,17,17,17,18,18,18,18,18,19,19,19,19,19,20,20,20,20,20,21,21,21,21,21,22,22,22,22,22,23,23,23,23,23,24,24,24,24,24,25,25,25,25,25,26,26,26,26,26,27,27,27,27,27,28,28,28,28,28,29,29,29,29,29,30,30,30,30,30,31,31,31,31,31,32,32,32,32,32,33,33,33,33,34,34,34,34,34,34,34,34,35,35,35,35
+    ];
+    const GAME_HERO_MAX_LEVEL = GAME_HERO_LEVEL_UP_EXP.length + 1;
+
+    function clampHeroLevelStart(level) {
+      const v = Math.floor(toNumber(level));
+      if (!Number.isFinite(v)) return 1;
+      return Math.max(1, v);
+    }
+
+    function heroHqGateForLevelRange(curLevel, targetLevel) {
+      const cur = clampHeroLevelStart(curLevel);
+      const tgt = Math.floor(toNumber(targetLevel));
+      if (!Number.isFinite(tgt) || tgt <= cur) return 0;
+      let maxHq = 0;
+      for (let L = cur; L < tgt; L += 1) {
+        const idx = L - 1;
+        if (idx >= 0 && idx < GAME_HERO_LEVEL_UP_HQ.length) {
+          maxHq = Math.max(maxHq, GAME_HERO_LEVEL_UP_HQ[idx]);
+        } else {
+          maxHq = Math.max(maxHq, 35);
+        }
+      }
+      return maxHq;
+    }
+
+    function heroExpNeedFromLevelsWithRate(curLevel, targetLevel, beyondTableRate) {
+      const cur = clampHeroLevelStart(curLevel);
+      const tgt = Math.floor(toNumber(targetLevel));
+      if (!Number.isFinite(tgt) || tgt <= cur) return 0;
+      const rate = toNumber(beyondTableRate);
+      let sum = 0;
+      for (let L = cur; L < tgt; L += 1) {
+        const idx = L - 1;
+        if (idx >= 0 && idx < GAME_HERO_LEVEL_UP_EXP.length) {
+          sum += GAME_HERO_LEVEL_UP_EXP[idx];
+        } else {
+          sum += rate;
+        }
+      }
+      return sum;
+    }
+
+    const HERO_SHARD_RANGES = [
+      { from: 0, to: 5, perTier: 5 },
+      { from: 5, to: 10, perTier: 10 },
+      { from: 10, to: 15, perTier: 20 },
+      { from: 15, to: 20, perTier: 60 },
+      { from: 20, to: 25, perTier: 100 }
+    ];
+
+    function heroShardsNeeded(currentTier, targetTier) {
+      const current = Math.max(0, Math.floor(toNumber(currentTier)));
+      const target = Math.min(25, Math.max(0, Math.floor(toNumber(targetTier))));
+      if (target <= current) return 0;
+      return HERO_SHARD_RANGES.reduce((sum, range) => {
+        const start = Math.max(current, range.from);
+        const end = Math.min(target, range.to);
+        const tiers = Math.max(0, end - start);
+        return sum + (tiers * range.perTier);
+      }, 0);
+    }
+
+    function formatHeroStarTier(value) {
+      const tier = Math.min(25, Math.max(0, Math.floor(toNumber(value))));
+      const stars = Math.floor(tier / 5);
+      const subTier = tier % 5;
+      return subTier === 0 ? `${stars} star` : `${stars} star +${subTier}`;
+    }
+
+    function heroStarTierValue(star, tier) {
+      const cleanStar = Math.min(5, Math.max(0, Math.floor(toNumber(star))));
+      const cleanTier = Math.min(4, Math.max(0, Math.floor(toNumber(tier))));
+      return cleanStar >= 5 ? 25 : (cleanStar * 5) + cleanTier;
+    }
+
+    function splitHeroStarTier(value) {
+      const totalTier = Math.min(25, Math.max(0, Math.floor(toNumber(value))));
+      return {
+        star: Math.floor(totalTier / 5),
+        tier: totalTier % 5
+      };
+    }
+
+    const WEAPON_SHARD_RANGES = [
+      { from: 0, to: 1, perLevel: 50 },
+      { from: 1, to: 5, perLevel: 20 },
+      { from: 5, to: 10, perLevel: 40 },
+      { from: 10, to: 15, perLevel: 60 },
+      { from: 15, to: 20, perLevel: 100 },
+      { from: 20, to: 25, perLevel: 150 },
+      { from: 25, to: 30, perLevel: 200 }
+    ];
+
+    function weaponShardsNeeded(currentLevel, targetLevel) {
+      const current = Math.max(0, Math.floor(toNumber(currentLevel)));
+      const target = Math.min(30, Math.max(0, Math.floor(toNumber(targetLevel))));
+      if (target <= current) return 0;
+      return WEAPON_SHARD_RANGES.reduce((sum, range) => {
+        const start = Math.max(current, range.from);
+        const end = Math.min(target, range.to);
+        const levels = Math.max(0, end - start);
+        return sum + (levels * range.perLevel);
+      }, 0);
+    }
+
+    function weaponShardRangeRows() {
+      let running = 0;
+      return WEAPON_SHARD_RANGES.map((range) => {
+        const levels = range.to - range.from;
+        const total = levels * range.perLevel;
+        running += total;
+        return {
+          label: range.from === 0 ? "Unlock (0 to 1)" : `${range.from + 1} to ${range.to}`,
+          perLevel: range.perLevel,
+          total,
+          running
+        };
+      });
+    }
+
+    const calculatorDefinitions = [
+      { id: "builderCopilot", group: "Buildings & Research", title: "Builder Copilot", description: "Apply build/research speed, free speed-up minutes, and resource reduction to a goal.", type: "builder" },
+      { id: "research", group: "Buildings & Research", title: "Research", description: "Estimate RSS needed for research levels.", type: "resource" },
+      { id: "time", group: "Buildings & Research", title: "Build/Research Time", description: "Apply speed boosts and alliance help reductions to a timer.", type: "time" },
+      { id: "hqRequirements", group: "Buildings & Research", title: "HQ Requirements", description: "Check how many building levels are missing for an HQ target.", type: "gap", unit: "levels" },
+      { id: "buildingResources", group: "Buildings & Research", title: "Building Resources", description: "Estimate RSS needed for building upgrades.", type: "resource" },
+      { id: "allianceHelp", group: "Buildings & Research", title: "Alliance Help Time", description: "Calculate time removed by alliance helps.", type: "help" },
+      { id: "survivor", group: "Basics", title: "Survivor Upgrades", description: "Estimate survivor shards or tokens needed.", type: "progress", unit: "tokens" },
+      { id: "droneParts", group: "Basics", title: "Drone Parts", description: "Estimate drone parts needed across levels.", type: "progress", unit: "parts" },
+      { id: "droneChips", group: "Basics", title: "Drone Skill Chips", description: "Estimate drone skill chip requirements.", type: "progress", unit: "chips" },
+      { id: "t11", group: "Basics", title: "T11 Armament Research", description: "Estimate armament research materials and RSS.", type: "resource" },
+      { id: "resourceChests", group: "Basics", title: "Resource Chests", description: "Convert level-tied chest counts into RSS totals.", type: "chest" },
+      { id: "plunder", group: "Basics", title: "Plunder Ratio", description: "Split troop load across target gold, food, and iron ratios.", type: "plunder" },
+      { id: "virusResistance", group: "Seasonal", title: "Virus Resistance", description: "Calculate the resistance gap after buffs.", type: "resistance" },
+      { id: "professionSkills", group: "Seasonal", title: "Profession Skills", description: "Track profession points spent and remaining.", type: "profession" }
+    ];
+
+    const OVERLORD_TRAINING_GUIDEBOOK_RUNS = [
+      [1,21,600],[21,41,800],[41,61,1000],[61,81,1200],[81,101,1400],[101,121,1600],
+      [121,141,2000],[141,161,2400],[161,181,2800],[181,201,3200],[201,221,3600],
+      [221,241,4000],[241,261,4400],[261,281,4800],[281,301,5200],[301,321,5600],
+      [321,341,6000],[341,361,6400],[361,381,6800],[381,405,7200],[405,425,7600],
+      [425,445,8000],[445,465,8400],[465,485,8800],[485,505,9200],[505,525,9600],
+      [525,545,10000],[545,585,10400],[585,801,12000]
+    ];
+
+    const OVERLORD_SKILL_BADGE_RUNS = [
+      [1,3,1000],[3,5,1500],[5,6,3000],[6,7,5000],[7,8,7000],[8,9,9000],
+      [9,10,11000],[10,11,13000],[11,12,15000],[12,13,17000],[13,14,20000],
+      [14,15,23000],[15,16,26000],[16,17,29000],[17,18,32000],[18,19,35000],
+      [19,20,38000],[20,21,41000],[21,22,44000],[22,23,47000],[23,24,50000],
+      [24,25,55000],[25,26,60000],[26,27,65000],[27,28,70000],[28,29,75000],
+      [29,30,80000],[30,40,100000]
+    ];
+
+    const OVERLORD_PROMOTION_RANKS = [
+      [0,9,"Recruit",10],[10,19,"Private",20],[20,29,"Fighter",40],[30,39,"Warrior",80],
+      [40,49,"Warlord",120],[50,59,"Champion",200],[60,60,"Overlord",0]
+    ];
+
+    const OVERLORD_PROMOTION_UNLOCKS = {
+      3:"Riot Shot star 1",5:"Overlord's Armor star 1",10:"Brutal Roar star 1",13:"Riot Shot star 2",
+      15:"Overlord's Armor star 2",17:"Furious Hunt unlocked",20:"Brutal Roar star 2",23:"Riot Shot star 3",
+      25:"Overlord's Armor star 3",27:"Furious Hunt star 1",30:"Brutal Roar star 3",33:"Riot Shot star 4",
+      35:"Overlord's Armor star 4",37:"Furious Hunt star 2",40:"Brutal Roar star 4",43:"Riot Shot star 5",
+      45:"Overlord's Armor star 5",47:"Furious Hunt star 3",50:"Brutal Roar star 5",51:"Expert Overlord unlocked",
+      53:"Riot Shot star 6",55:"Overlord's Armor star 6",57:"Furious Hunt star 4",60:"Brutal Roar star 6"
+    };
+
+    const OVERLORD_BOND_GROUPS = [
+      "New Partner","Rookie Partner","Trusted Friend","Reliable Partner","Loyal Friend","Bonded Partner",
+      "Perfect Sync","Strategic Pillar","Heart Bond","Team Anchor","Elite Ace","Ultimate Overlord"
+    ];
+
+    const OVERLORD_BOND_COST_RUNS = [
+      [0,10,2],[10,20,4],[20,30,6],[30,40,10],[40,50,15],[50,60,20],
+      [60,70,25],[70,81,30],[81,91,40],[91,101,50],[101,121,0]
+    ];
+
+    const OVERLORD_BOND_UNLOCKS = {
+      1:"Training Level 50",11:"Training Level 100",21:"Training Level 150",31:"Training Level 200",
+      41:"Training Level 250",51:"Training Level 300",61:"Training Level 350",71:"Training Level 400",
+      81:"Training Level 450",91:"Training Level 500"
+    };
+
+    const defaultState = {
+      planName: "RSS Plan",
+      daysLeft: 14,
+      theme: "dark",
+      activeSection: "rss",
+      quickSelected: "builderCopilot",
+      quickValues: {},
+      heroExpBeyondRate: 0,
+      heroes: [],
+      overlord: {
+        name: "Main Overlord",
+        promotionCurrent: 0,
+        promotionTarget: 60,
+        ownedShards: 0,
+        trainingCurrent: 1,
+        trainingTarget: 801,
+        ownedGuidebooks: 0,
+        ownedCertificates: 0,
+        skillCurrent: 1,
+        skillTarget: 40,
+        ownedSkillBadges: 0,
+        bondCurrent: 0,
+        bondTarget: 120,
+        ownedBondBadges: 0
+      },
+      mapPlan: {
+        type: mapTypes[0],
+        name: "Alliance Map Plan",
+        baseX: 50,
+        baseY: 50,
+        objectives: []
+      },
+      guides: [],
+      resources: fixedResourceNames.map((name) => buildResource(name, 0)),
+      items: [
+        { id: crypto.randomUUID(), name: "HQ or building upgrade", current: 0, target: 1, quantity: 1, priority: "High", costs: [0, 0, 0, 0] },
+        { id: crypto.randomUUID(), name: "Research node", current: 0, target: 1, quantity: 1, priority: "Medium", costs: [0, 0, 0, 0] },
+        { id: crypto.randomUUID(), name: "Troop or event spend", current: 0, target: 1, quantity: 1, priority: "Low", costs: [0, 0, 0, 0] }
+      ]
+    };
+
+    let state = loadState();
+    let editingHeroId = "";
+    const $ = (selector) => document.querySelector(selector);
+
+    function buildResource(name, owned = 0) {
+      return {
+        id: crypto.randomUUID(),
+        name,
+        owned,
+        manualDaily: 0,
+        productionHourly: 0,
+        productionHours: 24
+      };
+    }
+
+    function cloneDefaultState() {
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) return normalizeState(JSON.parse(saved));
+      } catch {
+        return cloneDefaultState();
+      }
+      return cloneDefaultState();
+    }
+
+    function normalizeState(nextState) {
+      const fallback = cloneDefaultState();
+      const sourceResources = Array.isArray(nextState.resources) ? nextState.resources : [];
+      const resources = fixedResourceNames.map((name) => {
+        const existing = sourceResources.find((resource) => resource.name?.toLowerCase() === name.toLowerCase());
+        return normalizeResource(existing || buildResource(name, 0), name);
+      });
+
+      const sourceItems = Array.isArray(nextState.items) && nextState.items.length
+        ? nextState.items
+        : fallback.items;
+      const items = sourceItems.map((item) => ({
+        id: item.id || crypto.randomUUID(),
+        name: item.name || "Upgrade",
+        current: toNumber(item.current),
+        target: toNumber(item.target || 1),
+        quantity: toNumber(item.quantity || 1),
+        priority: item.priority || "Medium",
+        costs: resources.map((_, index) => toNumber(item.costs?.[index]))
+      }));
+
+      const activeSection = (() => {
+        if (nextState.activeSection === "calculator" && nextState.quickSelected === "rssPlanner") return "rss";
+        if (nextState.activeSection === "maps" || nextState.activeSection === "guides") return "rss";
+        return ["rss", "heroes", "overlord", "calculator"].includes(nextState.activeSection) ? nextState.activeSection : fallback.activeSection;
+      })();
+
+      return {
+        planName: nextState.planName || nextState.seasonName || fallback.planName,
+        daysLeft: toNumber(nextState.daysLeft || fallback.daysLeft),
+        theme: nextState.theme === "light" ? "light" : "dark",
+        activeSection,
+        quickSelected: calculatorDefinitions.some((definition) => definition.id === nextState.quickSelected) ? nextState.quickSelected : fallback.quickSelected,
+        quickValues: nextState.quickValues && typeof nextState.quickValues === "object" ? nextState.quickValues : {},
+        heroExpBeyondRate: toNumber(nextState.heroExpBeyondRate ?? nextState.quickValues?.heroExp?.cost ?? fallback.heroExpBeyondRate),
+        heroes: Array.isArray(nextState.heroes) ? nextState.heroes.map(normalizeHero) : [],
+        overlord: normalizeOverlord(nextState.overlord || fallback.overlord),
+        mapPlan: normalizeMapPlan(nextState.mapPlan || fallback.mapPlan),
+        guides: Array.isArray(nextState.guides) ? nextState.guides.map(normalizeGuide) : [],
+        resources,
+        items
+      };
+    }
+
+    function normalizeMapPlan(plan) {
+      return {
+        type: mapTypes.includes(plan.type) ? plan.type : mapTypes[0],
+        name: plan.name || "Alliance Map Plan",
+        baseX: toNumber(plan.baseX ?? 50),
+        baseY: toNumber(plan.baseY ?? 50),
+        objectives: Array.isArray(plan.objectives) ? plan.objectives.map(normalizeMapObjective) : []
+      };
+    }
+
+    function normalizeMapObjective(objective) {
+      return {
+        id: objective.id || crypto.randomUUID(),
+        name: objective.name || "Objective",
+        type: objective.type || "Stronghold",
+        x: toNumber(objective.x),
+        y: toNumber(objective.y),
+        priority: objective.priority || "Medium",
+        status: objective.status || "Planned"
+      };
+    }
+
+    function normalizeGuide(guide) {
+      return {
+        id: guide.id || crypto.randomUUID(),
+        title: guide.title || "Untitled guide",
+        dataUrl: guide.dataUrl || ""
+      };
+    }
+
+    function normalizeHero(hero) {
+      return {
+        id: hero.id || crypto.randomUUID(),
+        name: hero.name || "Hero",
+        role: hero.role || "",
+        level: toNumber(hero.level),
+        targetLevel: toNumber(hero.targetLevel || hero.level),
+        ownedExp: toNumber(hero.ownedExp),
+        starCurrent: toNumber(hero.starCurrent),
+        starTarget: toNumber(hero.starTarget ?? hero.starCurrent),
+        ownedStarShards: toNumber(hero.ownedStarShards),
+        weaponCurrent: toNumber(hero.weaponCurrent),
+        weaponTarget: toNumber(hero.weaponTarget ?? hero.weaponCurrent),
+        ownedWeaponShards: toNumber(hero.ownedWeaponShards)
+      };
+    }
+
+    function normalizeOverlord(overlord) {
+      return {
+        name: overlord.name || "Main Overlord",
+        promotionCurrent: Math.min(60, Math.max(0, Math.floor(toNumber(overlord.promotionCurrent)))),
+        promotionTarget: Math.min(60, Math.max(0, Math.floor(toNumber(overlord.promotionTarget ?? overlord.promotionCurrent)))),
+        ownedShards: toNumber(overlord.ownedShards),
+        trainingCurrent: Math.min(801, Math.max(1, Math.floor(toNumber(overlord.trainingCurrent || 1)))),
+        trainingTarget: Math.min(801, Math.max(1, Math.floor(toNumber(overlord.trainingTarget || overlord.trainingCurrent || 1)))),
+        ownedGuidebooks: toNumber(overlord.ownedGuidebooks),
+        ownedCertificates: toNumber(overlord.ownedCertificates),
+        skillCurrent: Math.min(40, Math.max(1, Math.floor(toNumber(overlord.skillCurrent || 1)))),
+        skillTarget: Math.min(40, Math.max(1, Math.floor(toNumber(overlord.skillTarget || overlord.skillCurrent || 1)))),
+        ownedSkillBadges: toNumber(overlord.ownedSkillBadges),
+        bondCurrent: Math.min(120, Math.max(0, Math.floor(toNumber(overlord.bondCurrent)))),
+        bondTarget: Math.min(120, Math.max(0, Math.floor(toNumber(overlord.bondTarget ?? overlord.bondCurrent)))),
+        ownedBondBadges: toNumber(overlord.ownedBondBadges)
+      };
+    }
+
+    function normalizeResource(resource, fixedName) {
+      const migratedProduction = migrateProductionFields(resource);
+      return {
+        id: resource.id || crypto.randomUUID(),
+        name: fixedName,
+        owned: toNumber(resource.owned),
+        manualDaily: toNumber(resource.manualDaily ?? resource.daily),
+        productionHourly: toNumber(resource.productionHourly ?? migratedProduction.hourly),
+        productionHours: toNumber(resource.productionHours ?? migratedProduction.hours)
+      };
+    }
+
+    function migrateProductionFields(resource) {
+      if (Array.isArray(resource.mines) && resource.mines.length) {
+        const totalDaily = resource.mines.reduce((sum, mine) => sum + (toNumber(mine.rate) * toNumber(mine.hours || 24)), 0);
+        return { hourly: totalDaily / 24, hours: 24 };
+      }
+      const hourly = toNumber(resource.mineHourly) * Math.max(1, toNumber(resource.mineCount || 1));
+      return { hourly, hours: toNumber(resource.mineUptimeHours || 24) };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function toNumber(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function format(value) {
+      return numberFormatter.format(Math.max(0, value));
+    }
+
+    function capitalize(value) {
+      const text = String(value || "");
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function formatDuration(totalSeconds) {
+      const seconds = Math.max(0, Math.round(totalSeconds));
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const parts = [];
+      if (days) parts.push(`${days}d`);
+      if (hours) parts.push(`${hours}h`);
+      if (minutes || !parts.length) parts.push(`${minutes}m`);
+      return parts.join(" ");
+    }
+
+    function incomeBreakdown(resource) {
+      const production = resource.productionHourly * resource.productionHours;
+      const total = resource.manualDaily + production;
+      return { manual: resource.manualDaily, production, total };
+    }
+
+    function dailyIncome(resourceIndex) {
+      return incomeBreakdown(state.resources[resourceIndex]).total;
+    }
+
+    function itemNeed(item, resourceIndex) {
+      const remainingLevels = Math.max(0, item.target - item.current);
+      return remainingLevels * Math.max(0, item.quantity) * toNumber(item.costs[resourceIndex]);
+    }
+
+    function resourceNeed(resourceIndex) {
+      return state.items.reduce((sum, item) => sum + itemNeed(item, resourceIndex), 0);
+    }
+
+    function daysNeeded(shortage, daily) {
+      if (shortage <= 0) return 0;
+      if (daily <= 0) return Infinity;
+      return Math.ceil(shortage / daily);
+    }
+
+    function render() {
+      applyTheme();
+      $("#planName").value = state.planName;
+      $("#daysLeft").value = state.daysLeft;
+      renderIncomeInputs();
+      renderPlanTable();
+      renderTotals();
+      renderSummary();
+      renderCalculatorPicker();
+      renderQuickCalculator();
+      renderHeroTracker();
+      renderOverlordTracker();
+      renderDashboard();
+      renderToolNavigator();
+      switchSection(state.activeSection, false);
+      saveState();
+    }
+
+    function applyTheme() {
+      document.body.dataset.theme = state.theme;
+      const toggle = $("#themeToggleBtn");
+      if (toggle) toggle.textContent = state.theme === "light" ? "Dark Mode" : "Light Mode";
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === "light" ? "dark" : "light";
+      applyTheme();
+      saveState();
+    }
+
+    function renderDashboard() {
+      $("#moduleCount").textContent = format(calculatorDefinitions.length + 3);
+      $("#activeWorkspaceLabel").textContent = activeSectionLabel();
+      $("#livePlayerCount").textContent = format(12000 + ((Date.now() / 1000) % 900));
+    }
+
+    function activeSectionLabel() {
+      if (state.activeSection === "rss") return "RSS Planner";
+      if (state.activeSection === "heroes") return "Hero Tracker";
+      if (state.activeSection === "overlord") return "Overlord Tracker";
+      const definition = calculatorDefinitions.find((item) => item.id === state.quickSelected);
+      return definition ? definition.title : "Tools";
+    }
+
+    function switchSection(section, shouldSave = true) {
+      if (!["rss", "heroes", "overlord", "calculator"].includes(section)) {
+        section = "rss";
+      }
+      state.activeSection = section;
+      $("#rssSection").hidden = section !== "rss";
+      $("#heroesSection").hidden = section !== "heroes";
+      $("#overlordSection").hidden = section !== "overlord";
+      $("#calculatorSection").hidden = section !== "calculator";
+      $("#mapsSection").hidden = true;
+      $("#guidesSection").hidden = true;
+      $("#addItemBtn").hidden = section !== "rss";
+      document.querySelectorAll(".section-pill").forEach((button) => {
+        button.setAttribute("aria-selected", String(button.dataset.section === section));
+      });
+      syncToolNavigatorSelect();
+      renderDashboard();
+      closeDoorNav();
+      if (shouldSave) saveState();
+    }
+
+    function openDoorNav() {
+      document.body.classList.add("nav-open");
+      $("#openDoorNavBtn").setAttribute("aria-expanded", "true");
+    }
+
+    function closeDoorNav() {
+      document.body.classList.remove("nav-open");
+      $("#openDoorNavBtn").setAttribute("aria-expanded", "false");
+    }
+
+    let toolNavigatorBound = false;
+
+    function renderToolNavigator() {
+      const sel = $("#toolNavigator");
+      if (!sel) return;
+      if (!toolNavigatorBound) {
+        toolNavigatorBound = true;
+        sel.addEventListener("change", () => {
+          const v = sel.value;
+          if (v === "rss" || v === "heroes" || v === "overlord") {
+            switchSection(v);
+            render();
+            return;
+          }
+          if (v.startsWith("calc:")) {
+            const id = v.slice(5);
+            if (calculatorDefinitions.some((d) => d.id === id)) {
+              state.quickSelected = id;
+            }
+            selectDefaultCalculatorIfNeeded();
+            switchSection("calculator");
+            renderCalculatorPicker();
+            renderQuickCalculator();
+            syncToolNavigatorSelect();
+            renderDashboard();
+            saveState();
+          }
+        });
+      }
+      const grouped = calculatorDefinitions.reduce((groups, definition) => {
+        groups[definition.group] = groups[definition.group] || [];
+        groups[definition.group].push(definition);
+        return groups;
+      }, {});
+      const planning = `
+        <optgroup label="Planning and tracking">
+          <option value="rss">RSS Planner</option>
+          <option value="heroes">Hero Tracker</option>
+          <option value="overlord">Overlord Tracker</option>
+        </optgroup>
+      `;
+      const calcBlocks = Object.entries(grouped).map(([group, definitions]) => `
+        <optgroup label="${escapeHtml(group)}">
+          ${definitions.map((d) => `<option value="calc:${d.id}">${escapeHtml(d.title)}</option>`).join("")}
+        </optgroup>
+      `).join("");
+      sel.innerHTML = planning + calcBlocks;
+      syncToolNavigatorSelect();
+    }
+
+    function syncToolNavigatorSelect() {
+      const sel = $("#toolNavigator");
+      if (!sel || !sel.options.length) return;
+      const cur = state.activeSection === "calculator" ? `calc:${state.quickSelected}` : state.activeSection;
+      const match = Array.from(sel.options).some((o) => o.value === cur);
+      sel.value = match ? cur : "rss";
+    }
+
+    function renderIncomeInputs() {
+      const container = $("#incomeInputs");
+      container.innerHTML = "";
+      state.resources.forEach((resource) => {
+        const breakdown = incomeBreakdown(resource);
+        const card = document.createElement("article");
+        card.className = "income-card";
+        card.innerHTML = `
+          <h4>${escapeHtml(resource.name)}</h4>
+          <div class="field-grid">
+            <label>
+              <span>Owned</span>
+              <input data-field="owned" type="number" min="0" step="any" value="${resource.owned}">
+            </label>
+            <label>
+              <span>Other daily income</span>
+              <input data-field="manualDaily" type="number" min="0" step="any" value="${resource.manualDaily}">
+            </label>
+            <label>
+              <span>Total production rate/hour</span>
+              <input data-field="productionHourly" type="number" min="0" step="any" value="${resource.productionHourly}">
+            </label>
+            <label>
+              <span>Production hours/day</span>
+              <input data-field="productionHours" type="number" min="0" max="24" step="any" value="${resource.productionHours}">
+            </label>
+          </div>
+          <dl class="income-breakdown">
+            <dt>Manual</dt><dd>${format(breakdown.manual)}/day</dd>
+            <dt>Production</dt><dd>${format(breakdown.production)}/day</dd>
+            <dt>Total income</dt><dd>${format(breakdown.total)}/day</dd>
+          </dl>
+        `;
+
+        card.querySelectorAll("[data-field]").forEach((input) => {
+          input.addEventListener("input", (event) => {
+            resource[event.target.dataset.field] = toNumber(event.target.value);
+            render();
+          });
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderPlanTable() {
+      const head = $("#planHead");
+      const body = $("#planBody");
+      const resourceHeaders = state.resources.map((resource) => `<th>${escapeHtml(resource.name)} cost each</th>`).join("");
+      head.innerHTML = `
+        <tr>
+          <th>Upgrade</th>
+          <th>Current</th>
+          <th>Target</th>
+          <th>Qty</th>
+          <th>Priority</th>
+          ${resourceHeaders}
+          <th>Total needed</th>
+          <th></th>
+        </tr>
+      `;
+
+      body.innerHTML = "";
+      state.items.forEach((item, itemIndex) => {
+        const row = document.createElement("tr");
+        const costCells = state.resources.map((_, resourceIndex) => `
+          <td><input type="number" min="0" step="any" data-cost-index="${resourceIndex}" value="${toNumber(item.costs[resourceIndex])}"></td>
+        `).join("");
+        const rowTotal = state.resources
+          .map((resource, resourceIndex) => `${escapeHtml(resource.name)} ${format(itemNeed(item, resourceIndex))}`)
+          .join("<br>");
+
+        row.innerHTML = `
+          <td><input data-field="name" type="text" value="${escapeHtml(item.name)}"></td>
+          <td><input data-field="current" type="number" min="0" step="any" value="${item.current}"></td>
+          <td><input data-field="target" type="number" min="0" step="any" value="${item.target}"></td>
+          <td><input data-field="quantity" type="number" min="0" step="any" value="${item.quantity}"></td>
+          <td>
+            <select data-field="priority">
+              ${priorities.map((priority) => `<option ${item.priority === priority ? "selected" : ""}>${priority}</option>`).join("")}
+            </select>
+          </td>
+          ${costCells}
+          <td>${rowTotal}</td>
+          <td class="actions"><button class="danger" title="Remove upgrade">X</button></td>
+        `;
+
+        row.querySelectorAll("[data-field]").forEach((input) => {
+          input.addEventListener("input", (event) => {
+            const field = event.target.dataset.field;
+            item[field] = field === "name" || field === "priority" ? event.target.value : toNumber(event.target.value);
+            render();
+          });
+        });
+
+        row.querySelectorAll("[data-cost-index]").forEach((input) => {
+          input.addEventListener("input", (event) => {
+            item.costs[Number(event.target.dataset.costIndex)] = toNumber(event.target.value);
+            render();
+          });
+        });
+
+        row.querySelector("button").addEventListener("click", () => {
+          state.items.splice(itemIndex, 1);
+          render();
+        });
+
+        body.appendChild(row);
+      });
+    }
+
+    function renderTotals() {
+      const totals = $("#totals");
+      totals.innerHTML = "";
+      state.resources.forEach((resource, index) => {
+        const need = resourceNeed(index);
+        const income = dailyIncome(index);
+        const shortage = Math.max(0, need - resource.owned);
+        const projected = resource.owned + (income * state.daysLeft);
+        const projectedShortage = Math.max(0, need - projected);
+        const wait = daysNeeded(shortage, income);
+        const statusClass = shortage > 0 ? "shortage" : "covered";
+        const waitLabel = wait === Infinity ? "No income" : `${wait}d`;
+        const card = document.createElement("article");
+        card.className = "resource-total";
+        card.innerHTML = `
+          <h4>${escapeHtml(resource.name)}</h4>
+          <dl>
+            <dt>Needed</dt><dd>${format(need)}</dd>
+            <dt>Owned</dt><dd>${format(resource.owned)}</dd>
+            <dt>Short now</dt><dd class="${statusClass}">${format(shortage)}</dd>
+            <dt>Daily income</dt><dd>${format(income)}</dd>
+            <dt>Days to cover</dt><dd>${waitLabel}</dd>
+            <dt>Projected stock</dt><dd>${format(projected)}</dd>
+            <dt>Projected gap</dt><dd class="${projectedShortage > 0 ? "shortage" : "covered"}">${format(projectedShortage)}</dd>
+          </dl>
+        `;
+        totals.appendChild(card);
+      });
+    }
+
+    function renderSummary() {
+      const waits = state.resources.map((resource, index) => {
+        const shortage = Math.max(0, resourceNeed(index) - resource.owned);
+        return daysNeeded(shortage, dailyIncome(index));
+      });
+      const finiteWaits = waits.filter(Number.isFinite);
+      const largestFinite = finiteWaits.length ? Math.max(...finiteWaits) : 0;
+      const hasUnfarmableShortage = waits.some((wait) => wait === Infinity);
+      const largestWaitLabel = hasUnfarmableShortage ? "Blocked" : `${largestFinite}d`;
+      const overPlan = hasUnfarmableShortage || largestFinite > state.daysLeft;
+
+      $("#itemsCount").textContent = state.items.length;
+      $("#resourceCount").textContent = state.resources.length;
+      $("#largestWait").textContent = largestWaitLabel;
+      $("#planStatus").textContent = overPlan ? "Short" : "On track";
+      $("#planStatus").className = overPlan ? "shortage" : "covered";
+    }
+
+    function renderCalculatorPicker() {
+      const picker = $("#calculatorPicker");
+      if (!picker) return;
+      const grouped = calculatorDefinitions.reduce((groups, definition) => {
+        groups[definition.group] = groups[definition.group] || [];
+        groups[definition.group].push(definition);
+        return groups;
+      }, {});
+      picker.innerHTML = Object.entries(grouped).map(([group, definitions]) => `
+        <optgroup label="${escapeHtml(group)}">
+          ${definitions.map((definition) => `<option value="${definition.id}" ${state.quickSelected === definition.id ? "selected" : ""}>${escapeHtml(definition.title)}</option>`).join("")}
+        </optgroup>
+      `).join("");
+      picker.oninput = (event) => {
+        state.quickSelected = event.target.value;
+        renderQuickCalculator();
+        renderDashboard();
+        syncToolNavigatorSelect();
+        saveState();
+      };
+    }
+
+    function selectDefaultCalculatorIfNeeded() {
+      if (!calculatorDefinitions.some((definition) => definition.id === state.quickSelected)) {
+        state.quickSelected = calculatorDefinitions[0].id;
+      }
+    }
+
+    function renderQuickCalculator() {
+      const definition = calculatorDefinitions.find((item) => item.id === state.quickSelected) || calculatorDefinitions[0];
+      const values = quickValues(definition.id);
+      $("#quickTitle").textContent = definition.title;
+      $("#quickDescription").textContent = definition.description;
+      $("#quickInputs").innerHTML = quickInputDefinitions(definition).map((input) => `
+        <label>
+          <span>${escapeHtml(input.label)}</span>
+          <input data-quick-field="${input.field}" type="${input.type || "number"}" min="${input.min ?? 0}" step="${input.step || "any"}" value="${escapeHtml(values[input.field] ?? input.default ?? 0)}">
+        </label>
+      `).join("");
+      $("#quickInputs").querySelectorAll("[data-quick-field]").forEach((input) => {
+        input.addEventListener("input", (event) => {
+          values[event.target.dataset.quickField] = event.target.type === "number" ? toNumber(event.target.value) : event.target.value;
+          renderQuickResults(definition, values);
+          renderHeroTracker();
+          saveState();
+        });
+      });
+      renderQuickResults(definition, values);
+    }
+
+    function quickValues(id) {
+      state.quickValues[id] = state.quickValues[id] || {};
+      return state.quickValues[id];
+    }
+
+    function quickInputDefinitions(definition) {
+      if (definition.type === "resource") return [
+        { field: "steps", label: "Upgrade count", default: 1 },
+        { field: "ownedFood", label: "Owned food", default: 0 },
+        { field: "food", label: "Food per upgrade", default: 0 },
+        { field: "ownedIron", label: "Owned iron", default: 0 },
+        { field: "iron", label: "Iron per upgrade", default: 0 },
+        { field: "ownedGold", label: "Owned gold", default: 0 },
+        { field: "gold", label: "Gold per upgrade", default: 0 },
+        { field: "ownedOil", label: "Owned oil", default: 0 },
+        { field: "oil", label: "Oil per upgrade", default: 0 }
+      ];
+      if (definition.type === "builder") return [
+        { field: "food", label: "Base food needed", default: 0 },
+        { field: "iron", label: "Base iron needed", default: 0 },
+        { field: "gold", label: "Base gold needed", default: 0 },
+        { field: "oil", label: "Base oil needed", default: 0 },
+        { field: "days", label: "Base days", default: 0 },
+        { field: "hours", label: "Base hours", default: 0 },
+        { field: "speed", label: "Speed buff %", default: 0 },
+        { field: "freeMinutes", label: "Free speed-up minutes", default: 0 },
+        { field: "resourceReduce", label: "Resource reduction %", default: 0 }
+      ];
+      if (definition.type === "rank") return [
+        { field: "current", label: "Current rank step", default: 0 },
+        { field: "target", label: "Target rank step", default: 1 },
+        { field: "shards", label: "Shards per rank step", default: 0 },
+        { field: "owned", label: "Shards owned", default: 0 },
+        { field: "urUpgradeExtra", label: "SSR to UR extra shards", default: 0 }
+      ];
+      if (definition.type === "skill") return [
+        { field: "current", label: "Current skill level", default: 1 },
+        { field: "target", label: "Target skill level", default: 40 },
+        { field: "skills", label: "Number of skills", default: 1 },
+        { field: "medalsPerLevel", label: "Medals per level", default: 0 },
+        { field: "owned", label: "Medals owned", default: 0 }
+      ];
+      if (definition.type === "weapon") return [
+        { field: "current", label: "Current weapon level", default: 0 },
+        { field: "target", label: "Target weapon level", default: 1 },
+        { field: "owned", label: "Shards owned", default: 0 }
+      ];
+      if (definition.type === "specialized") return [
+        { field: "jointCurrent", label: "Joint Attack current", default: 0 },
+        { field: "jointTarget", label: "Joint Attack target", default: 0 },
+        { field: "defenseCurrent", label: "Defense Support current", default: 0 },
+        { field: "defenseTarget", label: "Defense Support target", default: 0 },
+        { field: "survivalCurrent", label: "Survival Training current", default: 0 },
+        { field: "survivalTarget", label: "Survival Training target", default: 0 },
+        { field: "guidebook", label: "Guidebooks per level", default: 0 },
+        { field: "certificate", label: "Certificates per level", default: 0 },
+        { field: "badge", label: "Bond badges per level", default: 0 }
+      ];
+      if (definition.type === "time") return [
+        { field: "days", label: "Base days", default: 0 },
+        { field: "hours", label: "Base hours", default: 0 },
+        { field: "minutes", label: "Base minutes", default: 0 },
+        { field: "speedBoost", label: "Speed boost %", default: 0 },
+        { field: "helps", label: "Alliance helps", default: 0 },
+        { field: "helpSeconds", label: "Seconds per help", default: 60 }
+      ];
+      if (definition.type === "help") return [
+        { field: "hours", label: "Base hours", default: 0 },
+        { field: "minutes", label: "Base minutes", default: 0 },
+        { field: "helps", label: "Alliance helps", default: 0 },
+        { field: "helpSeconds", label: "Seconds per help", default: 60 }
+      ];
+      if (definition.type === "gap") return [
+        { field: "target", label: "Required level", default: 0 },
+        { field: "current", label: "Current level", default: 0 }
+      ];
+      if (definition.type === "chest") return [
+        { field: "chests", label: "Chest count", default: 0 },
+        { field: "food", label: "Food per chest", default: 0 },
+        { field: "iron", label: "Iron per chest", default: 0 },
+        { field: "gold", label: "Gold per chest", default: 0 },
+        { field: "oil", label: "Oil per chest", default: 0 }
+      ];
+      if (definition.type === "plunder") return [
+        { field: "load", label: "Troop load", default: 0 },
+        { field: "gold", label: "Target gold", default: 0 },
+        { field: "food", label: "Target food", default: 0 },
+        { field: "iron", label: "Target iron", default: 0 }
+      ];
+      if (definition.type === "resistance") return [
+        { field: "current", label: "Current resistance", default: 0 },
+        { field: "buff", label: "Buff resistance", default: 0 },
+        { field: "required", label: "Required resistance", default: 0 }
+      ];
+      if (definition.type === "profession") return [
+        { field: "available", label: "Available points", default: 0 },
+        { field: "engineer", label: "Engineer points spent", default: 0 },
+        { field: "warleader", label: "Warleader points spent", default: 0 },
+        { field: "planned", label: "Next planned cost", default: 0 }
+      ];
+      if (definition.type === "event") return [
+        { field: "target", label: "Target points", default: 0 },
+        { field: "current", label: "Current points", default: 0 },
+        { field: "pointsEach", label: `Points per ${definition.unit || "item"}`, default: 1 },
+        { field: "owned", label: `${capitalize(definition.unit || "items")} owned`, default: 0 }
+      ];
+      if (definition.type === "probability") return [
+        { field: "tiles", label: "Remaining tiles", default: 0 },
+        { field: "targets", label: "Artifacts remaining", default: 0 },
+        { field: "pulls", label: "Pulls planned", default: 1 }
+      ];
+      if (definition.type === "train") return [
+        { field: "days", label: "Schedule days", default: 7 },
+        { field: "trains", label: "Trains per day", default: 1 },
+        { field: "tickets", label: "Tickets per train", default: 1 },
+        { field: "owned", label: "Tickets owned", default: 0 }
+      ];
+      if (definition.type === "progress" && definition.id === "heroExp") return [
+        { field: "current", label: "Current hero level", default: 1, min: 1 },
+        { field: "target", label: "Target hero level", default: 2, min: 1 },
+        { field: "owned", label: "EXP owned", default: 0 },
+        { field: "playerHq", label: "Your HQ level (optional)", default: 0 },
+        { field: "cost", label: "EXP per level beyond in-game table (175+)", default: 0 }
+      ];
+      return [
+        { field: "current", label: "Current level/step", default: 0 },
+        { field: "target", label: "Target level/step", default: 1 },
+        { field: "cost", label: `${capitalize(definition.unit || "items")} per step`, default: 0 },
+        { field: "quantity", label: "Quantity", default: 1 },
+        { field: "owned", label: `${capitalize(definition.unit || "items")} owned`, default: 0 }
+      ];
+    }
+
+    function renderQuickResults(definition, values) {
+      $("#quickResults").innerHTML = quickResults(definition, values)
+        .map((result) => `<div class="result-card"><span>${escapeHtml(result.label)}</span><strong>${escapeHtml(result.value)}</strong></div>`)
+        .join("");
+    }
+
+    function quickResults(definition, values) {
+      if (definition.type === "resource") {
+        const steps = Math.max(0, toNumber(values.steps || 0));
+        return ["food", "iron", "gold", "oil"].flatMap((name) => {
+          const need = steps * toNumber(values[name]);
+          const short = Math.max(0, need - toNumber(values[`owned${capitalize(name)}`]));
+          return [
+            { label: `${capitalize(name)} needed`, value: format(need) },
+            { label: `${capitalize(name)} short`, value: format(short) }
+          ];
+        });
+      }
+      if (definition.type === "builder") {
+        const reduction = Math.min(100, Math.max(0, toNumber(values.resourceReduce))) / 100;
+        const baseSeconds = ((toNumber(values.days) * 24) + toNumber(values.hours)) * 3600;
+        const boosted = baseSeconds / (1 + (toNumber(values.speed) / 100));
+        const finalSeconds = Math.max(0, boosted - (toNumber(values.freeMinutes) * 60));
+        return [
+          { label: "Food after reduction", value: format(toNumber(values.food) * (1 - reduction)) },
+          { label: "Iron after reduction", value: format(toNumber(values.iron) * (1 - reduction)) },
+          { label: "Gold after reduction", value: format(toNumber(values.gold) * (1 - reduction)) },
+          { label: "Oil after reduction", value: format(toNumber(values.oil) * (1 - reduction)) },
+          { label: "Time after buffs", value: formatDuration(boosted) },
+          { label: "Time after free speed-up", value: formatDuration(finalSeconds) }
+        ];
+      }
+      if (definition.type === "rank") {
+        const steps = Math.max(0, toNumber(values.target) - toNumber(values.current));
+        const needed = (steps * toNumber(values.shards)) + toNumber(values.urUpgradeExtra);
+        return [
+          { label: "Rank steps", value: format(steps) },
+          { label: "Shards needed", value: format(needed) },
+          { label: "Shards short", value: format(Math.max(0, needed - toNumber(values.owned))) }
+        ];
+      }
+      if (definition.type === "skill") {
+        const levels = Math.max(0, toNumber(values.target) - toNumber(values.current));
+        const needed = levels * Math.max(1, toNumber(values.skills || 1)) * toNumber(values.medalsPerLevel);
+        return [
+          { label: "Skill levels", value: format(levels) },
+          { label: "Medals needed", value: format(needed) },
+          { label: "Medals short", value: format(Math.max(0, needed - toNumber(values.owned))) }
+        ];
+      }
+      if (definition.type === "weapon") {
+        const current = toNumber(values.current);
+        const target = toNumber(values.target);
+        const needed = weaponShardsNeeded(current, target);
+        const rows = weaponShardRangeRows();
+        return [
+          { label: "Shards needed", value: format(needed) },
+          { label: "Shards short", value: format(Math.max(0, needed - toNumber(values.owned))) },
+          { label: "Max table level", value: "30" },
+          ...rows.map((row) => ({ label: row.label, value: `${format(row.perLevel)}/lvl · ${format(row.running)} total` }))
+        ];
+      }
+      if (definition.type === "specialized") {
+        const levels = Math.max(0, toNumber(values.jointTarget) - toNumber(values.jointCurrent))
+          + Math.max(0, toNumber(values.defenseTarget) - toNumber(values.defenseCurrent))
+          + Math.max(0, toNumber(values.survivalTarget) - toNumber(values.survivalCurrent));
+        return [
+          { label: "Total levels", value: format(levels) },
+          { label: "Guidebooks", value: format(levels * toNumber(values.guidebook)) },
+          { label: "Certificates", value: format(levels * toNumber(values.certificate)) },
+          { label: "Bond badges", value: format(levels * toNumber(values.badge)) }
+        ];
+      }
+      if (definition.type === "time") {
+        const base = ((toNumber(values.days) * 24 * 60) + (toNumber(values.hours) * 60) + toNumber(values.minutes)) * 60;
+        const boosted = base / (1 + (toNumber(values.speedBoost) / 100));
+        const helped = Math.max(0, boosted - (toNumber(values.helps) * toNumber(values.helpSeconds)));
+        return [
+          { label: "Base time", value: formatDuration(base) },
+          { label: "After boosts", value: formatDuration(boosted) },
+          { label: "After helps", value: formatDuration(helped) }
+        ];
+      }
+      if (definition.type === "help") {
+        const base = ((toNumber(values.hours) * 60) + toNumber(values.minutes)) * 60;
+        const reduced = Math.min(base, toNumber(values.helps) * toNumber(values.helpSeconds));
+        return [
+          { label: "Time removed", value: formatDuration(reduced) },
+          { label: "Time remaining", value: formatDuration(base - reduced) }
+        ];
+      }
+      if (definition.type === "gap") {
+        const gap = Math.max(0, toNumber(values.target) - toNumber(values.current));
+        return [{ label: `${capitalize(definition.unit || "levels")} missing`, value: format(gap) }];
+      }
+      if (definition.type === "chest") {
+        const chests = toNumber(values.chests);
+        return ["food", "iron", "gold", "oil"].map((name) => ({ label: `${capitalize(name)} total`, value: format(chests * toNumber(values[name])) }));
+      }
+      if (definition.type === "plunder") {
+        const target = toNumber(values.gold) + toNumber(values.food) + toNumber(values.iron);
+        const load = Math.min(toNumber(values.load), target);
+        const ratios = target > 0 ? { gold: toNumber(values.gold) / target, food: toNumber(values.food) / target, iron: toNumber(values.iron) / target } : { gold: 0, food: 0, iron: 0 };
+        return [
+          { label: "Gold ratio", value: `${format(ratios.gold * 100)}%` },
+          { label: "Food ratio", value: `${format(ratios.food * 100)}%` },
+          { label: "Iron ratio", value: `${format(ratios.iron * 100)}%` },
+          { label: "Regular total", value: format(load) },
+          { label: "Reduced 15%", value: format(load * 0.15) },
+          { label: "Reduced 5%", value: format(load * 0.05) }
+        ];
+      }
+      if (definition.type === "resistance") {
+        const effective = toNumber(values.current) + toNumber(values.buff);
+        const gap = Math.max(0, toNumber(values.required) - effective);
+        return [
+          { label: "Effective resistance", value: format(effective) },
+          { label: "Resistance gap", value: format(gap) }
+        ];
+      }
+      if (definition.type === "profession") {
+        const spent = toNumber(values.engineer) + toNumber(values.warleader);
+        const remaining = Math.max(0, toNumber(values.available) - spent);
+        return [
+          { label: "Points spent", value: format(spent) },
+          { label: "Points remaining", value: format(remaining) },
+          { label: "After planned", value: format(Math.max(0, remaining - toNumber(values.planned))) }
+        ];
+      }
+      if (definition.type === "event") {
+        const neededPoints = Math.max(0, toNumber(values.target) - toNumber(values.current));
+        const itemsNeeded = toNumber(values.pointsEach) > 0 ? Math.ceil(neededPoints / toNumber(values.pointsEach)) : Infinity;
+        return [
+          { label: "Points remaining", value: format(neededPoints) },
+          { label: `${capitalize(definition.unit || "items")} needed`, value: itemsNeeded === Infinity ? "No rate" : format(itemsNeeded) },
+          { label: `${capitalize(definition.unit || "items")} short`, value: itemsNeeded === Infinity ? "No rate" : format(Math.max(0, itemsNeeded - toNumber(values.owned))) }
+        ];
+      }
+      if (definition.type === "probability") {
+        const tiles = Math.max(0, toNumber(values.tiles));
+        const targets = Math.min(tiles, Math.max(0, toNumber(values.targets)));
+        const pulls = Math.min(tiles, Math.max(0, toNumber(values.pulls)));
+        const chanceNext = tiles > 0 ? targets / tiles : 0;
+        const chanceByPulls = tiles > 0 && targets > 0 ? 1 - combinationRatio(tiles - targets, pulls, tiles, pulls) : 0;
+        return [
+          { label: "Next-pull chance", value: `${format(chanceNext * 100)}%` },
+          { label: "Chance within pulls", value: `${format(chanceByPulls * 100)}%` },
+          { label: "Expected pulls", value: targets > 0 ? format((tiles + 1) / (targets + 1)) : "No targets" }
+        ];
+      }
+      if (definition.type === "train") {
+        const trains = toNumber(values.days) * toNumber(values.trains);
+        const tickets = trains * toNumber(values.tickets);
+        return [
+          { label: "Total trains", value: format(trains) },
+          { label: "Tickets needed", value: format(tickets) },
+          { label: "Tickets short", value: format(Math.max(0, tickets - toNumber(values.owned))) }
+        ];
+      }
+      if (definition.type === "progress" && definition.id === "heroExp") {
+        const cur = clampHeroLevelStart(values.current);
+        const tgt = Math.floor(toNumber(values.target));
+        const need = heroExpNeedFromLevelsWithRate(values.current, values.target, toNumber(values.cost));
+        const short = Math.max(0, need - toNumber(values.owned));
+        const gate = heroHqGateForLevelRange(cur, tgt);
+        const phq = Math.floor(toNumber(values.playerHq));
+        const rows = [
+          { label: "EXP needed", value: format(need) },
+          { label: "EXP short", value: format(short) },
+          { label: "Max HQ (level path)", value: format(gate) }
+        ];
+        if (phq > 0) {
+          rows.push({ label: "HQ vs path", value: phq >= gate ? "OK" : `Raise HQ to ${format(gate)}` });
+        }
+        if (Number.isFinite(tgt) && tgt > GAME_HERO_MAX_LEVEL && toNumber(values.cost) <= 0) {
+          rows.push({ label: "Beyond table", value: "Set rate for levels after 175" });
+        }
+        return rows;
+      }
+      const steps = Math.max(0, toNumber(values.target) - toNumber(values.current));
+      const needed = steps * Math.max(0, toNumber(values.quantity || 1)) * toNumber(values.cost);
+      return [
+        { label: "Steps remaining", value: format(steps) },
+        { label: `${capitalize(definition.unit || "items")} needed`, value: format(needed) },
+        { label: `${capitalize(definition.unit || "items")} short`, value: format(Math.max(0, needed - toNumber(values.owned))) }
+      ];
+    }
+
+    function combinationRatio(successlessTotal, pulls, total, pullCount) {
+      if (pulls <= 0) return 1;
+      if (successlessTotal < pullCount) return 0;
+      let ratio = 1;
+      for (let index = 0; index < pullCount; index += 1) {
+        ratio *= (successlessTotal - index) / (total - index);
+      }
+      return ratio;
+    }
+
+    function addItem() {
+      state.items.push({
+        id: crypto.randomUUID(),
+        name: "New upgrade",
+        current: 0,
+        target: 1,
+        quantity: 1,
+        priority: "Medium",
+        costs: state.resources.map(() => 0)
+      });
+      render();
+    }
+
+    /** Hero Tracker owns hero EXP, regular hero shards, and weapon shards. */
+
+    function heroExpRate() {
+      return toNumber(state.heroExpBeyondRate);
+    }
+
+    function heroExpNeedFromLevels(curLevel, targetLevel) {
+      return heroExpNeedFromLevelsWithRate(curLevel, targetLevel, heroExpRate());
+    }
+
+    /** Same formula as Calculators → Hero Shards (progress): steps × quantity × cost */
+    function heroNeeds(hero) {
+      const expNeed = heroExpNeedFromLevels(hero.level, hero.targetLevel);
+      const expShort = Math.max(0, expNeed - hero.ownedExp);
+      const maxHq = heroHqGateForLevelRange(hero.level, hero.targetLevel);
+      const starNeed = heroShardsNeeded(hero.starCurrent, hero.starTarget);
+      const starShort = Math.max(0, starNeed - hero.ownedStarShards);
+      const weaponNeed = weaponShardsNeeded(hero.weaponCurrent, hero.weaponTarget);
+      const weaponShort = Math.max(0, weaponNeed - hero.ownedWeaponShards);
+      const done = expShort <= 0 && starShort <= 0 && weaponShort <= 0;
+      return { expNeed, expShort, maxHq, starNeed, starShort, weaponNeed, weaponShort, done };
+    }
+
+    function renderHeroTracker() {
+      const summary = $("#heroTrackerSummary");
+      if (!summary) return;
+      if (document.activeElement !== $("#heroExpBeyondRate")) {
+        $("#heroExpBeyondRate").value = state.heroExpBeyondRate || "";
+      }
+      const totals = state.heroes.reduce((sum, hero) => {
+        const needs = heroNeeds(hero);
+        sum.expNeed += needs.expNeed;
+        sum.starNeed += needs.starNeed;
+        sum.weaponNeed += needs.weaponNeed;
+        sum.expShort += needs.expShort;
+        sum.starShort += needs.starShort;
+        sum.weaponShort += needs.weaponShort;
+        sum.done += needs.done ? 1 : 0;
+        return sum;
+      }, { expNeed: 0, starNeed: 0, weaponNeed: 0, expShort: 0, starShort: 0, weaponShort: 0, done: 0 });
+      summary.innerHTML = [
+        { label: "Tracked Heroes", value: format(state.heroes.length) },
+        { label: "Ready Heroes", value: format(totals.done) },
+        { label: "Total EXP needed", value: format(totals.expNeed) },
+        { label: "Total hero shards needed", value: format(totals.starNeed) },
+        { label: "Total weapon shards needed", value: format(totals.weaponNeed) },
+        { label: "Still short (all)", value: format(totals.expShort + totals.starShort + totals.weaponShort) }
+      ].map((item) => `<div class="result-card"><span>${item.label}</span><strong>${item.value}</strong></div>`).join("");
+
+      $("#heroTrackerRows").innerHTML = state.heroes.map((hero) => {
+        const needs = heroNeeds(hero);
+        const expTitle = `Still short after owned: ${format(needs.expShort)}`;
+        const starPath = `${formatHeroStarTier(hero.starCurrent)} to ${formatHeroStarTier(hero.starTarget)}`;
+        const hqTitle = `Highest HQ band required on the path ${format(hero.level)} → ${format(hero.targetLevel)}`;
+        const starTitle = `${starPath} - still short ${format(needs.starShort)}`;
+        const wpnTitle = `Steps ${format(hero.weaponCurrent)} → ${format(hero.weaponTarget)} · still short ${format(needs.weaponShort)}`;
+        const isEditing = editingHeroId === hero.id;
+        return `
+          <tr ${isEditing ? 'class="editing-row"' : ""}>
+            <td>${escapeHtml(hero.name)}</td>
+            <td>${escapeHtml(hero.role || "-")}</td>
+            <td title="Levels">${format(hero.level)} → ${format(hero.targetLevel)}</td>
+            <td title="${escapeHtml(expTitle)}">${format(needs.expNeed)}</td>
+            <td title="${escapeHtml(hqTitle)}">${format(needs.maxHq)}</td>
+            <td title="Hero star path">${escapeHtml(starPath)}</td>
+            <td>${format(hero.ownedStarShards)}</td>
+            <td title="${escapeHtml(starTitle)}">${format(needs.starNeed)}</td>
+            <td title="Exclusive weapon level">${format(hero.weaponCurrent)} to ${format(hero.weaponTarget)}</td>
+            <td>${format(hero.ownedWeaponShards)}</td>
+            <td title="${escapeHtml(wpnTitle)}">${format(needs.weaponNeed)}</td>
+            <td class="${needs.done ? "covered" : "shortage"}">${needs.done ? "Ready" : "Needs work"}</td>
+            <td class="actions">
+              <button data-edit-hero="${hero.id}">${isEditing ? "Editing" : "Edit"}</button>
+              <button class="danger" data-remove-hero="${hero.id}">X</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      syncHeroEditControls();
+      $("#heroTrackerRows").querySelectorAll("[data-edit-hero]").forEach((button) => {
+        button.addEventListener("click", (event) => startEditHero(event.currentTarget.dataset.editHero));
+      });
+      $("#heroTrackerRows").querySelectorAll("[data-remove-hero]").forEach((button) => {
+        button.addEventListener("click", (event) => removeHero(event.currentTarget.dataset.removeHero));
+      });
+    }
+
+    function heroFormValues() {
+      return normalizeHero({
+        name: $("#heroName").value,
+        role: $("#heroRole").value,
+        level: $("#heroLevel").value,
+        targetLevel: $("#heroTargetLevel").value,
+        ownedExp: $("#heroOwnedExp").value,
+        starCurrent: heroStarTierValue($("#heroFromStar").value, $("#heroFromTier").value),
+        starTarget: heroStarTierValue($("#heroToStar").value, $("#heroToTier").value),
+        ownedStarShards: $("#heroOwnedStarShards").value,
+        weaponCurrent: $("#heroWeaponCurrent").value,
+        weaponTarget: $("#heroWeaponTarget").value,
+        ownedWeaponShards: $("#heroOwnedWeaponShards").value
+      });
+    }
+
+    function setHeroForm(hero) {
+      $("#heroName").value = hero.name ?? "";
+      $("#heroRole").value = hero.role ?? "";
+      $("#heroLevel").value = hero.level ?? "";
+      $("#heroTargetLevel").value = hero.targetLevel ?? "";
+      $("#heroOwnedExp").value = hero.ownedExp ?? "";
+      const fromStar = splitHeroStarTier(hero.starCurrent);
+      const toStar = splitHeroStarTier(hero.starTarget);
+      $("#heroFromStar").value = fromStar.star;
+      $("#heroFromTier").value = fromStar.tier;
+      $("#heroToStar").value = toStar.star;
+      $("#heroToTier").value = toStar.tier;
+      $("#heroOwnedStarShards").value = hero.ownedStarShards ?? "";
+      $("#heroWeaponCurrent").value = hero.weaponCurrent ?? "";
+      $("#heroWeaponTarget").value = hero.weaponTarget ?? "";
+      $("#heroOwnedWeaponShards").value = hero.ownedWeaponShards ?? "";
+    }
+
+    function clearHeroForm() {
+      [
+        "#heroName", "#heroRole", "#heroLevel", "#heroTargetLevel", "#heroOwnedExp",
+        "#heroFromStar", "#heroFromTier", "#heroToStar", "#heroToTier", "#heroOwnedStarShards",
+        "#heroWeaponCurrent", "#heroWeaponTarget", "#heroOwnedWeaponShards"
+      ].forEach((selector) => {
+        $(selector).value = "";
+      });
+    }
+
+    function syncHeroEditControls() {
+      $("#addHeroBtn").textContent = editingHeroId ? "Save Hero" : "Add Hero";
+      $("#cancelHeroEditBtn").hidden = !editingHeroId;
+    }
+
+    function addHero() {
+      const hero = heroFormValues();
+      if (editingHeroId) {
+        hero.id = editingHeroId;
+        state.heroes = state.heroes.map((existing) => existing.id === editingHeroId ? hero : existing);
+        editingHeroId = "";
+      } else {
+        state.heroes.push(hero);
+      }
+      clearHeroForm();
+      renderHeroTracker();
+      renderDashboard();
+      saveState();
+    }
+
+    function startEditHero(id) {
+      const hero = state.heroes.find((item) => item.id === id);
+      if (!hero) return;
+      editingHeroId = id;
+      setHeroForm(hero);
+      renderHeroTracker();
+      saveState();
+    }
+
+    function cancelHeroEdit() {
+      editingHeroId = "";
+      clearHeroForm();
+      renderHeroTracker();
+    }
+
+    function removeHero(id) {
+      state.heroes = state.heroes.filter((hero) => hero.id !== id);
+      if (editingHeroId === id) {
+        editingHeroId = "";
+        clearHeroForm();
+      }
+      renderHeroTracker();
+      renderDashboard();
+      saveState();
+    }
+
+    function sumRunCosts(runs, current, target) {
+      const from = Math.floor(toNumber(current));
+      const to = Math.floor(toNumber(target));
+      if (to <= from) return 0;
+      return runs.reduce((sum, [start, end, cost]) => {
+        const overlap = Math.max(0, Math.min(to, end) - Math.max(from, start));
+        return sum + (overlap * cost);
+      }, 0);
+    }
+
+    function overlordTrainingNeeds(current, target) {
+      const from = Math.max(1, Math.floor(toNumber(current)));
+      const to = Math.min(801, Math.max(1, Math.floor(toNumber(target))));
+      if (to <= from) return { guidebooks: 0, certificates: 0 };
+      let certificates = 0;
+      for (let level = from; level < to; level += 1) {
+        if (level % 5 === 0) certificates += Math.min(300, Math.ceil(level / 20) * 10);
+      }
+      return {
+        guidebooks: sumRunCosts(OVERLORD_TRAINING_GUIDEBOOK_RUNS, from, to),
+        certificates
+      };
+    }
+
+    function overlordPromotionInfo(level) {
+      const clean = Math.min(60, Math.max(0, Math.floor(toNumber(level))));
+      const row = OVERLORD_PROMOTION_RANKS.find(([start, end]) => clean >= start && clean <= end) || OVERLORD_PROMOTION_RANKS[0];
+      return { rank: row[2], shards: row[3] };
+    }
+
+    function overlordPromotionNeeds(current, target) {
+      const from = Math.max(0, Math.floor(toNumber(current)));
+      const to = Math.min(60, Math.max(0, Math.floor(toNumber(target))));
+      if (to <= from) return 0;
+      let shards = 0;
+      for (let level = from; level < to; level += 1) {
+        shards += overlordPromotionInfo(level).shards;
+      }
+      return shards;
+    }
+
+    function roman(value) {
+      return ["","I","II","III","IV","V","VI","VII","VIII","IX","X"][value] || String(value);
+    }
+
+    function overlordBondName(index) {
+      const clean = Math.min(120, Math.max(0, Math.floor(toNumber(index))));
+      if (clean === 0) return "No Rating";
+      const adjusted = clean - 1;
+      const group = OVERLORD_BOND_GROUPS[Math.floor(adjusted / 10)] || OVERLORD_BOND_GROUPS[0];
+      return `${group} ${roman((adjusted % 10) + 1)}`;
+    }
+
+    function overlordBondNeeds(current, target) {
+      return sumRunCosts(OVERLORD_BOND_COST_RUNS, current, target);
+    }
+
+    function overlordSkillNeeds(current, target) {
+      return sumRunCosts(OVERLORD_SKILL_BADGE_RUNS, current, target);
+    }
+
+    function overlordNeeds() {
+      const o = state.overlord;
+      const training = overlordTrainingNeeds(o.trainingCurrent, o.trainingTarget);
+      const promotion = overlordPromotionNeeds(o.promotionCurrent, o.promotionTarget);
+      const skills = overlordSkillNeeds(o.skillCurrent, o.skillTarget);
+      const bond = overlordBondNeeds(o.bondCurrent, o.bondTarget);
+      return {
+        promotion,
+        promotionShort: Math.max(0, promotion - o.ownedShards),
+        guidebooks: training.guidebooks,
+        guidebooksShort: Math.max(0, training.guidebooks - o.ownedGuidebooks),
+        certificates: training.certificates,
+        certificatesShort: Math.max(0, training.certificates - o.ownedCertificates),
+        skills,
+        skillsShort: Math.max(0, skills - o.ownedSkillBadges),
+        bond,
+        bondShort: Math.max(0, bond - o.ownedBondBadges)
+      };
+    }
+
+    function renderOverlordTracker() {
+      const section = $("#overlordSection");
+      if (!section) return;
+      const o = state.overlord;
+      const fieldMap = {
+        overlordName: "name",
+        overlordPromotionCurrent: "promotionCurrent",
+        overlordPromotionTarget: "promotionTarget",
+        overlordOwnedShards: "ownedShards",
+        overlordTrainingCurrent: "trainingCurrent",
+        overlordTrainingTarget: "trainingTarget",
+        overlordOwnedGuidebooks: "ownedGuidebooks",
+        overlordOwnedCertificates: "ownedCertificates",
+        overlordSkillCurrent: "skillCurrent",
+        overlordSkillTarget: "skillTarget",
+        overlordOwnedSkillBadges: "ownedSkillBadges",
+        overlordOwnedBondBadges: "ownedBondBadges"
+      };
+      Object.entries(fieldMap).forEach(([id, field]) => {
+        const input = $(`#${id}`);
+        if (input && document.activeElement !== input) input.value = o[field] ?? "";
+      });
+      const bondOptions = Array.from({ length: 121 }, (_, index) => `<option value="${index}">${escapeHtml(overlordBondName(index))}</option>`).join("");
+      ["overlordBondCurrent", "overlordBondTarget"].forEach((id) => {
+        const select = $(`#${id}`);
+        if (!select) return;
+        if (!select.options.length) select.innerHTML = bondOptions;
+        if (document.activeElement !== select) select.value = String(o[id === "overlordBondCurrent" ? "bondCurrent" : "bondTarget"]);
+      });
+
+      const needs = overlordNeeds();
+      const promoFrom = overlordPromotionInfo(o.promotionCurrent);
+      const promoTo = overlordPromotionInfo(o.promotionTarget);
+      const totalShort = needs.promotionShort + needs.guidebooksShort + needs.certificatesShort + needs.skillsShort + needs.bondShort;
+      $("#overlordSummary").innerHTML = [
+        { label: "Promotion rank", value: `${promoFrom.rank} to ${promoTo.rank}` },
+        { label: "Training path", value: `${format(o.trainingCurrent)} to ${format(o.trainingTarget)}` },
+        { label: "Skill path", value: `${format(o.skillCurrent)} to ${format(o.skillTarget)}` },
+        { label: "Bond path", value: `${overlordBondName(o.bondCurrent)} to ${overlordBondName(o.bondTarget)}` },
+        { label: "Total short", value: format(totalShort) },
+        { label: "Status", value: totalShort <= 0 ? "Ready" : "Needs materials" }
+      ].map((item) => `<div class="result-card"><span>${item.label}</span><strong>${escapeHtml(item.value)}</strong></div>`).join("");
+
+      $("#overlordRows").innerHTML = [
+        ["Promotion", `${format(o.promotionCurrent)} to ${format(o.promotionTarget)}`, needs.promotion, o.ownedShards, needs.promotionShort],
+        ["Training guidebooks", `${format(o.trainingCurrent)} to ${format(o.trainingTarget)}`, needs.guidebooks, o.ownedGuidebooks, needs.guidebooksShort],
+        ["Training certificates", `${format(o.trainingCurrent)} to ${format(o.trainingTarget)}`, needs.certificates, o.ownedCertificates, needs.certificatesShort],
+        ["Skills", `${format(o.skillCurrent)} to ${format(o.skillTarget)}`, needs.skills, o.ownedSkillBadges, needs.skillsShort],
+        ["Bond rating", `${overlordBondName(o.bondCurrent)} to ${overlordBondName(o.bondTarget)}`, needs.bond, o.ownedBondBadges, needs.bondShort]
+      ].map(([category, path, needed, owned, short]) => `
+        <tr>
+          <td>${escapeHtml(category)}</td>
+          <td>${escapeHtml(path)}</td>
+          <td>${format(needed)}</td>
+          <td>${format(owned)}</td>
+          <td class="${short <= 0 ? "covered" : "shortage"}">${format(short)}</td>
+        </tr>
+      `).join("");
+
+      const unlocks = [];
+      for (let level = o.promotionCurrent + 1; level <= o.promotionTarget; level += 1) {
+        if (OVERLORD_PROMOTION_UNLOCKS[level]) unlocks.push(`Promotion ${level}: ${OVERLORD_PROMOTION_UNLOCKS[level]}`);
+      }
+      for (let rating = o.bondCurrent + 1; rating <= o.bondTarget; rating += 1) {
+        if (OVERLORD_BOND_UNLOCKS[rating]) unlocks.push(`${overlordBondName(rating)}: ${OVERLORD_BOND_UNLOCKS[rating]}`);
+      }
+      $("#overlordUnlocks").textContent = unlocks.length ? `Unlocks on this path: ${unlocks.join("; ")}` : "No promotion or bond unlocks on this selected path.";
+    }
+
+    function updateOverlordField(field, value) {
+      state.overlord[field] = field === "name" ? value : toNumber(value);
+      state.overlord = normalizeOverlord(state.overlord);
+      renderOverlordTracker();
+      renderDashboard();
+      saveState();
+    }
+
+    function renderMapPlanning() {
+      if (!$("#mapType")) return;
+      $("#mapType").innerHTML = mapTypes.map((type) => `<option ${state.mapPlan.type === type ? "selected" : ""}>${escapeHtml(type)}</option>`).join("");
+      $("#mapPlanName").value = state.mapPlan.name;
+      $("#mapBaseX").value = state.mapPlan.baseX;
+      $("#mapBaseY").value = state.mapPlan.baseY;
+      renderMapSummary();
+      renderMapCanvas();
+      renderMapRows();
+    }
+
+    function renderMapSummary() {
+      const total = state.mapPlan.objectives.length;
+      const claimed = state.mapPlan.objectives.filter((objective) => objective.status === "Claimed").length;
+      const high = state.mapPlan.objectives.filter((objective) => objective.priority === "High").length;
+      const route = total > 1 ? routeDistance(state.mapPlan.objectives) : 0;
+      $("#mapSummary").innerHTML = [
+        { label: "Objectives", value: format(total) },
+        { label: "High Priority", value: format(high) },
+        { label: "Claimed", value: format(claimed) },
+        { label: "Route Distance", value: format(route) }
+      ].map((item) => `<div class="result-card"><span>${item.label}</span><strong>${item.value}</strong></div>`).join("");
+    }
+
+    function renderMapCanvas() {
+      const canvas = $("#mapCanvas");
+      canvas.innerHTML = "";
+      const base = document.createElement("div");
+      base.className = "map-point";
+      base.style.left = `${clampPercent(state.mapPlan.baseX)}%`;
+      base.style.top = `${clampPercent(state.mapPlan.baseY)}%`;
+      base.innerHTML = `<strong>Rally</strong><span>${format(state.mapPlan.baseX)}, ${format(state.mapPlan.baseY)}</span>`;
+      canvas.appendChild(base);
+      state.mapPlan.objectives.forEach((objective) => {
+        const point = document.createElement("div");
+        point.className = "map-point";
+        point.style.left = `${clampPercent(objective.x)}%`;
+        point.style.top = `${clampPercent(objective.y)}%`;
+        point.innerHTML = `<strong>${escapeHtml(objective.name)}</strong><span>${escapeHtml(objective.type)} · ${escapeHtml(objective.priority)}</span>`;
+        canvas.appendChild(point);
+      });
+    }
+
+    function renderMapRows() {
+      $("#mapObjectiveRows").innerHTML = state.mapPlan.objectives.map((objective) => `
+        <tr>
+          <td>${escapeHtml(objective.name)}</td>
+          <td>${escapeHtml(objective.type)}</td>
+          <td>${format(objective.x)}, ${format(objective.y)}</td>
+          <td>${escapeHtml(objective.priority)}</td>
+          <td>${escapeHtml(objective.status)}</td>
+          <td>${format(distanceFromBase(objective))}</td>
+          <td class="actions"><button class="danger" data-remove-map-objective="${objective.id}">X</button></td>
+        </tr>
+      `).join("");
+      $("#mapObjectiveRows").querySelectorAll("[data-remove-map-objective]").forEach((button) => {
+        button.addEventListener("click", (event) => removeMapObjective(event.currentTarget.dataset.removeMapObjective));
+      });
+    }
+
+    function addMapObjective() {
+      state.mapPlan.objectives.push(normalizeMapObjective({
+        name: $("#mapObjectiveName").value,
+        type: $("#mapObjectiveType").value,
+        x: $("#mapObjectiveX").value,
+        y: $("#mapObjectiveY").value,
+        priority: $("#mapObjectivePriority").value,
+        status: $("#mapObjectiveStatus").value
+      }));
+      $("#mapObjectiveName").value = "";
+      $("#mapObjectiveX").value = "";
+      $("#mapObjectiveY").value = "";
+      renderMapPlanning();
+      saveState();
+    }
+
+    function removeMapObjective(id) {
+      state.mapPlan.objectives = state.mapPlan.objectives.filter((objective) => objective.id !== id);
+      renderMapPlanning();
+      saveState();
+    }
+
+    function updateMapField(field, value) {
+      state.mapPlan[field] = field === "name" || field === "type" ? value : toNumber(value);
+      renderMapPlanning();
+      saveState();
+    }
+
+    function distanceFromBase(objective) {
+      return Math.hypot(toNumber(objective.x) - state.mapPlan.baseX, toNumber(objective.y) - state.mapPlan.baseY);
+    }
+
+    function routeDistance(objectives) {
+      return objectives.reduce((sum, objective, index) => {
+        const previous = index === 0 ? { x: state.mapPlan.baseX, y: state.mapPlan.baseY } : objectives[index - 1];
+        return sum + Math.hypot(objective.x - previous.x, objective.y - previous.y);
+      }, 0);
+    }
+
+    function clampPercent(value) {
+      return Math.min(100, Math.max(0, toNumber(value)));
+    }
+
+    function exportJson() {
+      const exportData = {
+        app: "last-war-rss-calculator",
+        version: EXPORT_VERSION,
+        exportedAt: new Date().toISOString(),
+        state
+      };
+      downloadFile(`${safeName(state.planName)}-calculator.json`, JSON.stringify(exportData, null, 2), "application/json");
+    }
+
+    function importJson(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          state = normalizeState(parsed.state || parsed);
+          render();
+          $("#importStatus").textContent = "Imported";
+          window.setTimeout(() => $("#importStatus").textContent = "", 2200);
+        } catch {
+          alert("That JSON file could not be imported.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetCalculator() {
+      if (!confirm("Reset this calculator to the RSS starter template?")) return;
+      state = cloneDefaultState();
+      render();
+    }
+
+    function addGuideImage() {
+      const input = $("#guideImageInput");
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.guides.push({
+          id: crypto.randomUUID(),
+          title: $("#guideTitle").value || file.name,
+          dataUrl: reader.result
+        });
+        $("#guideTitle").value = "";
+        input.value = "";
+        renderGuides();
+        saveState();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeGuide(id) {
+      state.guides = state.guides.filter((guide) => guide.id !== id);
+      renderGuides();
+      saveState();
+    }
+
+    function renderGuides() {
+      const grid = $("#guideGrid");
+      if (!grid) return;
+      grid.innerHTML = state.guides.length
+        ? state.guides.map((guide) => `
+          <article class="guide-card">
+            <img src="${escapeHtml(guide.dataUrl)}" alt="${escapeHtml(guide.title)}">
+            <footer>
+              <strong>${escapeHtml(guide.title)}</strong>
+              <button class="danger" data-remove-guide="${guide.id}">Remove</button>
+            </footer>
+          </article>
+        `).join("")
+        : `<p class="note">No guide images yet. Add one when you have a guide screenshot or graphic ready.</p>`;
+      grid.querySelectorAll("[data-remove-guide]").forEach((button) => {
+        button.addEventListener("click", (event) => removeGuide(event.currentTarget.dataset.removeGuide));
+      });
+    }
+
+    function downloadFile(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function safeName(value) {
+      return String(value || "last-war-rss").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function initParticles() {
+      const canvas = $("#particleCanvas");
+      const context = canvas.getContext("2d");
+      const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      let particles = [];
+
+      function resize() {
+        canvas.width = window.innerWidth * devicePixelRatio;
+        canvas.height = window.innerHeight * devicePixelRatio;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+        context.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+        particles = Array.from({ length: Math.min(120, Math.floor(window.innerWidth / 12)) }, () => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          size: 1 + Math.random() * 2.5
+        }));
+      }
+
+      function draw() {
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        particles.forEach((particle, index) => {
+          const dx = particle.x - pointer.x;
+          const dy = particle.y - pointer.y;
+          const distance = Math.max(1, Math.hypot(dx, dy));
+          const force = Math.min(2.4, 90 / distance);
+          particle.x += particle.vx + (dx / distance) * force * 0.14;
+          particle.y += particle.vy + (dy / distance) * force * 0.14;
+          if (particle.x < 0) particle.x = window.innerWidth;
+          if (particle.x > window.innerWidth) particle.x = 0;
+          if (particle.y < 0) particle.y = window.innerHeight;
+          if (particle.y > window.innerHeight) particle.y = 0;
+
+          context.beginPath();
+          context.fillStyle = index % 3 === 0 ? "rgba(168,85,247,.72)" : "rgba(49,215,255,.68)";
+          context.shadowColor = index % 3 === 0 ? "#a855f7" : "#31d7ff";
+          context.shadowBlur = 10;
+          context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          context.fill();
+        });
+
+        context.shadowBlur = 0;
+        context.strokeStyle = "rgba(49,215,255,.12)";
+        for (let a = 0; a < particles.length; a += 1) {
+          for (let b = a + 1; b < particles.length; b += 1) {
+            const distance = Math.hypot(particles[a].x - particles[b].x, particles[a].y - particles[b].y);
+            if (distance < 110) {
+              context.globalAlpha = 1 - (distance / 110);
+              context.beginPath();
+              context.moveTo(particles[a].x, particles[a].y);
+              context.lineTo(particles[b].x, particles[b].y);
+              context.stroke();
+            }
+          }
+        }
+        context.globalAlpha = 1;
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener("resize", resize);
+      window.addEventListener("mousemove", (event) => {
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+      });
+      resize();
+      draw();
+    }
+
+    $("#planName").addEventListener("input", (event) => {
+      state.planName = event.target.value;
+      saveState();
+    });
+    $("#daysLeft").addEventListener("input", (event) => {
+      state.daysLeft = toNumber(event.target.value);
+      renderTotals();
+      renderSummary();
+      saveState();
+    });
+    $("#addItemBtn").addEventListener("click", addItem);
+    $("#themeToggleBtn").addEventListener("click", toggleTheme);
+    $("#openDoorNavBtn").addEventListener("click", openDoorNav);
+    $("#closeDoorNavBtn").addEventListener("click", closeDoorNav);
+    $("#navScrim").addEventListener("click", closeDoorNav);
+    $("#exportJsonBtn").addEventListener("click", exportJson);
+    $("#importJsonInput").addEventListener("change", (event) => importJson(event.target.files[0]));
+    $("#resetBtn").addEventListener("click", resetCalculator);
+    $("#addHeroBtn").addEventListener("click", addHero);
+    $("#cancelHeroEditBtn").addEventListener("click", cancelHeroEdit);
+    $("#heroExpBeyondRate").addEventListener("input", (event) => {
+      state.heroExpBeyondRate = toNumber(event.target.value);
+      renderHeroTracker();
+      saveState();
+    });
+    $("#addGuideBtn").addEventListener("click", addGuideImage);
+    $("#addMapObjectiveBtn").addEventListener("click", addMapObjective);
+    $("#mapType").addEventListener("input", (event) => updateMapField("type", event.target.value));
+    $("#mapPlanName").addEventListener("input", (event) => updateMapField("name", event.target.value));
+    $("#mapBaseX").addEventListener("input", (event) => updateMapField("baseX", event.target.value));
+    $("#mapBaseY").addEventListener("input", (event) => updateMapField("baseY", event.target.value));
+    [
+      ["overlordName", "name"],
+      ["overlordPromotionCurrent", "promotionCurrent"],
+      ["overlordPromotionTarget", "promotionTarget"],
+      ["overlordOwnedShards", "ownedShards"],
+      ["overlordTrainingCurrent", "trainingCurrent"],
+      ["overlordTrainingTarget", "trainingTarget"],
+      ["overlordOwnedGuidebooks", "ownedGuidebooks"],
+      ["overlordOwnedCertificates", "ownedCertificates"],
+      ["overlordSkillCurrent", "skillCurrent"],
+      ["overlordSkillTarget", "skillTarget"],
+      ["overlordOwnedSkillBadges", "ownedSkillBadges"],
+      ["overlordBondCurrent", "bondCurrent"],
+      ["overlordBondTarget", "bondTarget"],
+      ["overlordOwnedBondBadges", "ownedBondBadges"]
+    ].forEach(([id, field]) => {
+      const input = $(`#${id}`);
+      if (input) input.addEventListener("input", (event) => updateOverlordField(field, event.target.value));
+    });
+    document.querySelectorAll("[data-section]").forEach((button) => {
+      button.addEventListener("click", (event) => switchSection(event.currentTarget.dataset.section));
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeDoorNav();
+    });
+
+    initParticles();
+    render();
+  </script>
+</body>
+</html>
