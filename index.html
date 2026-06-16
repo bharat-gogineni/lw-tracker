@@ -791,10 +791,14 @@
                   <span>Days to project</span>
                   <input id="daysLeft" type="number" min="0" step="1">
                 </label>
+                <label>
+                  <span>Optional resource chests</span>
+                  <input id="resourceChestPool" type="number" min="0" step="any" title="Shared flexible RSS that can cover Food, Iron, or Gold shortages">
+                </label>
               </div>
 
               <h3>Resources</h3>
-              <p class="note">Resources are fixed to Food, Iron, Gold, and Oil so the planner stays focused on core RSS.</p>
+              <p class="note">Resources are fixed to Food, Iron, Gold, and Oil. Optional resource chests are distributed only across Food, Iron, and Gold gaps.</p>
             </section>
 
             <section class="panel">
@@ -1334,6 +1338,7 @@
     const defaultState = {
       planName: "RSS Plan",
       daysLeft: 14,
+      resourceChestPool: 0,
       theme: "dark",
       activeSection: "rss",
       quickSelected: "builderCopilot",
@@ -1431,6 +1436,7 @@
       return {
         planName: nextState.planName || nextState.seasonName || fallback.planName,
         daysLeft: toNumber(nextState.daysLeft || fallback.daysLeft),
+        resourceChestPool: toNumber(nextState.resourceChestPool),
         theme: nextState.theme === "light" ? "light" : "dark",
         activeSection,
         quickSelected: calculatorDefinitions.some((definition) => definition.id === nextState.quickSelected) ? nextState.quickSelected : fallback.quickSelected,
@@ -1545,6 +1551,18 @@
       return numberFormatter.format(Math.max(0, value));
     }
 
+    function formatRss(value) {
+      const amount = Math.max(0, toNumber(value));
+      const units = [
+        { suffix: "B", value: 1000000000 },
+        { suffix: "M", value: 1000000 },
+        { suffix: "K", value: 1000 }
+      ];
+      const unit = units.find((item) => amount >= item.value);
+      if (!unit) return numberFormatter.format(amount);
+      return `${numberFormatter.format(amount / unit.value)}${unit.suffix}`;
+    }
+
     function capitalize(value) {
       const text = String(value || "");
       return text.charAt(0).toUpperCase() + text.slice(1);
@@ -1587,10 +1605,33 @@
       return Math.ceil(shortage / daily);
     }
 
+    function resourceChestAllocation() {
+      let remaining = Math.max(0, toNumber(state.resourceChestPool));
+      const allocations = state.resources.map(() => 0);
+      const eligible = state.resources
+        .map((resource, index) => {
+          const projected = resource.owned + (dailyIncome(index) * state.daysLeft);
+          return {
+            index,
+            gap: Math.max(0, resourceNeed(index) - projected),
+            eligible: ["food", "iron", "gold"].includes(resource.name.toLowerCase())
+          };
+        })
+        .filter((item) => item.eligible && item.gap > 0)
+        .sort((a, b) => b.gap - a.gap);
+      eligible.forEach((item) => {
+        const used = Math.min(item.gap, remaining);
+        allocations[item.index] = used;
+        remaining -= used;
+      });
+      return { allocations, remaining };
+    }
+
     function render() {
       applyTheme();
       $("#planName").value = state.planName;
       $("#daysLeft").value = state.daysLeft;
+      $("#resourceChestPool").value = state.resourceChestPool || "";
       renderIncomeInputs();
       renderPlanTable();
       renderTotals();
@@ -1748,9 +1789,9 @@
             </label>
           </div>
           <dl class="income-breakdown">
-            <dt>Manual</dt><dd>${format(breakdown.manual)}/day</dd>
-            <dt>Production</dt><dd>${format(breakdown.production)}/day</dd>
-            <dt>Total income</dt><dd>${format(breakdown.total)}/day</dd>
+            <dt>Manual</dt><dd>${formatRss(breakdown.manual)}/day</dd>
+            <dt>Production</dt><dd>${formatRss(breakdown.production)}/day</dd>
+            <dt>Total income</dt><dd>${formatRss(breakdown.total)}/day</dd>
           </dl>
         `;
 
@@ -1771,9 +1812,9 @@
     function updateIncomeCardBreakdown(card, resource) {
       const breakdown = incomeBreakdown(resource);
       const values = card.querySelectorAll(".income-breakdown dd");
-      if (values[0]) values[0].textContent = `${format(breakdown.manual)}/day`;
-      if (values[1]) values[1].textContent = `${format(breakdown.production)}/day`;
-      if (values[2]) values[2].textContent = `${format(breakdown.total)}/day`;
+      if (values[0]) values[0].textContent = `${formatRss(breakdown.manual)}/day`;
+      if (values[1]) values[1].textContent = `${formatRss(breakdown.production)}/day`;
+      if (values[2]) values[2].textContent = `${formatRss(breakdown.total)}/day`;
     }
 
     function renderPlanTable() {
@@ -1800,7 +1841,7 @@
           <td><input type="number" min="0" step="any" data-cost-index="${resourceIndex}" value="${toNumber(item.costs[resourceIndex])}"></td>
         `).join("");
         const rowTotal = state.resources
-          .map((resource, resourceIndex) => `${escapeHtml(resource.name)} ${format(itemNeed(item, resourceIndex))}`)
+          .map((resource, resourceIndex) => `${escapeHtml(resource.name)} ${formatRss(itemNeed(item, resourceIndex))}`)
           .join("<br>");
 
         row.innerHTML = `
@@ -1852,19 +1893,22 @@
       const cell = row.querySelector("[data-row-total]");
       if (!cell) return;
       cell.innerHTML = state.resources
-        .map((resource, resourceIndex) => `${escapeHtml(resource.name)} ${format(itemNeed(item, resourceIndex))}`)
+        .map((resource, resourceIndex) => `${escapeHtml(resource.name)} ${formatRss(itemNeed(item, resourceIndex))}`)
         .join("<br>");
     }
 
     function renderTotals() {
       const totals = $("#totals");
       totals.innerHTML = "";
+      const chestPlan = resourceChestAllocation();
       state.resources.forEach((resource, index) => {
         const need = resourceNeed(index);
         const income = dailyIncome(index);
         const shortage = Math.max(0, need - resource.owned);
         const projected = resource.owned + (income * state.daysLeft);
         const projectedShortage = Math.max(0, need - projected);
+        const chestUsed = chestPlan.allocations[index] || 0;
+        const afterChestGap = Math.max(0, projectedShortage - chestUsed);
         const wait = daysNeeded(shortage, income);
         const statusClass = shortage > 0 ? "shortage" : "covered";
         const waitLabel = wait === Infinity ? "No income" : `${wait}d`;
@@ -1873,22 +1917,39 @@
         card.innerHTML = `
           <h4>${escapeHtml(resource.name)}</h4>
           <dl>
-            <dt>Needed</dt><dd>${format(need)}</dd>
-            <dt>Owned</dt><dd>${format(resource.owned)}</dd>
-            <dt>Short now</dt><dd class="${statusClass}">${format(shortage)}</dd>
-            <dt>Daily income</dt><dd>${format(income)}</dd>
+            <dt>Needed</dt><dd title="${format(need)}">${formatRss(need)}</dd>
+            <dt>Owned</dt><dd title="${format(resource.owned)}">${formatRss(resource.owned)}</dd>
+            <dt>Short now</dt><dd class="${statusClass}" title="${format(shortage)}">${formatRss(shortage)}</dd>
+            <dt>Daily income</dt><dd title="${format(income)}">${formatRss(income)}</dd>
             <dt>Days to cover</dt><dd>${waitLabel}</dd>
-            <dt>Projected stock</dt><dd>${format(projected)}</dd>
-            <dt>Projected gap</dt><dd class="${projectedShortage > 0 ? "shortage" : "covered"}">${format(projectedShortage)}</dd>
+            <dt>Projected stock</dt><dd title="${format(projected)}">${formatRss(projected)}</dd>
+            <dt>Projected gap</dt><dd class="${projectedShortage > 0 ? "shortage" : "covered"}" title="${format(projectedShortage)}">${formatRss(projectedShortage)}</dd>
+            <dt>Chest applied</dt><dd title="${format(chestUsed)}">${formatRss(chestUsed)}</dd>
+            <dt>Gap after chest</dt><dd class="${afterChestGap > 0 ? "shortage" : "covered"}" title="${format(afterChestGap)}">${formatRss(afterChestGap)}</dd>
           </dl>
         `;
         totals.appendChild(card);
       });
+      if (state.resourceChestPool > 0) {
+        const card = document.createElement("article");
+        card.className = "resource-total";
+        card.innerHTML = `
+          <h4>Resource Chests</h4>
+          <dl>
+            <dt>Available</dt><dd title="${format(state.resourceChestPool)}">${formatRss(state.resourceChestPool)}</dd>
+            <dt>Allocated</dt><dd title="${format(state.resourceChestPool - chestPlan.remaining)}">${formatRss(state.resourceChestPool - chestPlan.remaining)}</dd>
+            <dt>Remaining</dt><dd class="${chestPlan.remaining > 0 ? "covered" : ""}" title="${format(chestPlan.remaining)}">${formatRss(chestPlan.remaining)}</dd>
+          </dl>
+        `;
+        totals.appendChild(card);
+      }
     }
 
     function renderSummary() {
+      const chestPlan = resourceChestAllocation();
       const waits = state.resources.map((resource, index) => {
-        const shortage = Math.max(0, resourceNeed(index) - resource.owned);
+        const projected = resource.owned + (dailyIncome(index) * state.daysLeft);
+        const shortage = Math.max(0, resourceNeed(index) - projected - (chestPlan.allocations[index] || 0));
         return daysNeeded(shortage, dailyIncome(index));
       });
       const finiteWaits = waits.filter(Number.isFinite);
@@ -2912,6 +2973,12 @@
     });
     $("#daysLeft").addEventListener("input", (event) => {
       state.daysLeft = toNumber(event.target.value);
+      renderTotals();
+      renderSummary();
+      saveState();
+    });
+    $("#resourceChestPool").addEventListener("input", (event) => {
+      state.resourceChestPool = toNumber(event.target.value);
       renderTotals();
       renderSummary();
       saveState();
