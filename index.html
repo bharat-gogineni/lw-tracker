@@ -1757,12 +1757,23 @@
         card.querySelectorAll("[data-field]").forEach((input) => {
           input.addEventListener("input", (event) => {
             resource[event.target.dataset.field] = toNumber(event.target.value);
-            render();
+            updateIncomeCardBreakdown(card, resource);
+            renderTotals();
+            renderSummary();
+            saveState();
           });
         });
 
         container.appendChild(card);
       });
+    }
+
+    function updateIncomeCardBreakdown(card, resource) {
+      const breakdown = incomeBreakdown(resource);
+      const values = card.querySelectorAll(".income-breakdown dd");
+      if (values[0]) values[0].textContent = `${format(breakdown.manual)}/day`;
+      if (values[1]) values[1].textContent = `${format(breakdown.production)}/day`;
+      if (values[2]) values[2].textContent = `${format(breakdown.total)}/day`;
     }
 
     function renderPlanTable() {
@@ -1803,7 +1814,7 @@
             </select>
           </td>
           ${costCells}
-          <td>${rowTotal}</td>
+          <td data-row-total>${rowTotal}</td>
           <td class="actions"><button class="danger" title="Remove upgrade">X</button></td>
         `;
 
@@ -1811,14 +1822,20 @@
           input.addEventListener("input", (event) => {
             const field = event.target.dataset.field;
             item[field] = field === "name" || field === "priority" ? event.target.value : toNumber(event.target.value);
-            render();
+            updatePlanRowTotal(row, item);
+            renderTotals();
+            renderSummary();
+            saveState();
           });
         });
 
         row.querySelectorAll("[data-cost-index]").forEach((input) => {
           input.addEventListener("input", (event) => {
             item.costs[Number(event.target.dataset.costIndex)] = toNumber(event.target.value);
-            render();
+            updatePlanRowTotal(row, item);
+            renderTotals();
+            renderSummary();
+            saveState();
           });
         });
 
@@ -1829,6 +1846,14 @@
 
         body.appendChild(row);
       });
+    }
+
+    function updatePlanRowTotal(row, item) {
+      const cell = row.querySelector("[data-row-total]");
+      if (!cell) return;
+      cell.innerHTML = state.resources
+        .map((resource, resourceIndex) => `${escapeHtml(resource.name)} ${format(itemNeed(item, resourceIndex))}`)
+        .join("<br>");
     }
 
     function renderTotals() {
