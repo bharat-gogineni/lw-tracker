@@ -7,56 +7,50 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #121214;
-      --body-bg:
-        radial-gradient(circle at 18% 8%, rgba(37, 217, 255, 0.16), transparent 32%),
-        radial-gradient(circle at 82% 0%, rgba(141, 255, 63, 0.1), transparent 34%),
-        linear-gradient(135deg, #121214 0%, #171a22 55%, #101114 100%);
-      --header-bg: linear-gradient(135deg, rgba(18, 18, 20, 0.9) 0%, rgba(21, 27, 36, 0.76) 58%, rgba(8, 37, 45, 0.66) 100%);
-      --header-copy: rgba(255, 255, 255, 0.84);
-      --panel: rgba(24, 26, 32, 0.86);
-      --ink: #f4f7ff;
-      --muted: #a8adbb;
-      --line: rgba(76, 92, 116, 0.42);
-      --accent: #25d9ff;
-      --accent-2: #8dff3f;
-      --danger: #ff5c8a;
-      --soft: rgba(37, 217, 255, 0.12);
-      --shadow: 0 0 34px rgba(37, 217, 255, 0.12), 0 18px 50px rgba(0, 0, 0, 0.48);
-      --field-bg: rgba(7, 10, 27, 0.82);
-      --card-bg: linear-gradient(145deg, rgba(28, 31, 40, 0.88), rgba(18, 18, 20, 0.78));
-      --metric-bg: rgba(7, 10, 27, 0.62);
-      --button-bg: rgba(9, 15, 38, 0.82);
-      --table-bg: rgba(7, 10, 27, 0.72);
-      --table-head-bg: #121936;
-      --table-head-ink: #dbeafe;
+      --bg: #111315;
+      --body-bg: #111315;
+      --header-bg: #16191d;
+      --header-copy: #a8adb5;
+      --panel: #181b20;
+      --ink: #f1f3f5;
+      --muted: #8b929c;
+      --line: #2a2f36;
+      --accent: #d2b66f;
+      --accent-2: #90986b;
+      --danger: #e26d7d;
+      --soft: #22262c;
+      --shadow: none;
+      --field-bg: #111315;
+      --card-bg: #181b20;
+      --metric-bg: #14171b;
+      --button-bg: #1d2127;
+      --table-bg: #14171b;
+      --table-head-bg: #20242a;
+      --table-head-ink: #e6e8eb;
     }
 
     body[data-theme="light"] {
       color-scheme: light;
-      --bg: #f5f8ff;
-      --body-bg:
-        radial-gradient(circle at 18% 8%, rgba(37, 217, 255, 0.18), transparent 30%),
-        radial-gradient(circle at 82% 0%, rgba(141, 255, 63, 0.16), transparent 32%),
-        linear-gradient(135deg, #f8fbff 0%, #edf4ff 55%, #f7fff1 100%);
-      --header-bg: linear-gradient(135deg, rgba(235, 246, 255, 0.92), rgba(248, 252, 255, 0.84));
-      --header-copy: rgba(25, 34, 50, 0.78);
-      --panel: rgba(255, 255, 255, 0.82);
-      --ink: #111827;
-      --muted: #526070;
-      --line: rgba(47, 67, 92, 0.22);
-      --accent: #0077ff;
-      --accent-2: #1fa84f;
-      --danger: #d9275d;
-      --soft: rgba(0, 119, 255, 0.1);
-      --shadow: 0 16px 42px rgba(37, 71, 108, 0.14), 0 0 22px rgba(0, 119, 255, 0.08);
-      --field-bg: rgba(255, 255, 255, 0.88);
-      --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(239, 246, 255, 0.76));
-      --metric-bg: rgba(245, 249, 255, 0.84);
-      --button-bg: rgba(255, 255, 255, 0.86);
-      --table-bg: rgba(255, 255, 255, 0.78);
-      --table-head-bg: #e8f1ff;
-      --table-head-ink: #172033;
+      --bg: #f4f5f6;
+      --body-bg: #f4f5f6;
+      --header-bg: #ffffff;
+      --header-copy: #66707b;
+      --panel: #ffffff;
+      --ink: #171a1f;
+      --muted: #66707b;
+      --line: #d6dae0;
+      --accent: #725f32;
+      --accent-2: #657047;
+      --danger: #b4233a;
+      --soft: #eef0f2;
+      --shadow: none;
+      --field-bg: #ffffff;
+      --card-bg: #ffffff;
+      --metric-bg: #f7f8f9;
+      --button-bg: #ffffff;
+      --table-bg: #ffffff;
+      --table-head-bg: #eef0f2;
+      --table-head-ink: #171a1f;
     }
 
     * { box-sizing: border-box; }
@@ -69,28 +63,50 @@
       line-height: 1.4;
       min-height: 100vh;
       overflow-x: hidden;
-      perspective: 1500px;
-    }
-
-    #particleCanvas {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
     }
 
     header {
       background: var(--header-bg);
       color: var(--ink);
       padding: 28px clamp(16px, 4vw, 48px);
-      border-bottom: 1px solid rgba(49, 215, 255, 0.28);
-      box-shadow: 0 0 40px rgba(37, 217, 255, 0.14);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      left: clamp(16px, 4vw, 48px);
+      bottom: 0;
+      width: min(280px, 58vw);
+      height: 3px;
+      background: var(--accent);
+    }
+
+    .game-kicker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .game-kicker span + span {
+      color: var(--muted);
+      padding-left: 8px;
+      border-left: 1px solid var(--line);
     }
 
     header h1 {
       margin: 0;
       font-size: clamp(28px, 4vw, 46px);
       letter-spacing: 0;
+      text-transform: uppercase;
     }
 
     header p {
@@ -100,78 +116,99 @@
       font-size: 16px;
     }
 
+    .resource-strip {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .resource-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--metric-bg);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .resource-chip::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+      background: var(--resource-color, var(--accent));
+    }
+
+    .resource-chip.food { --resource-color: #8b9a65; }
+    .resource-chip.iron { --resource-color: #8d949c; }
+    .resource-chip.gold { --resource-color: #d2b66f; }
+    .resource-chip.oil { --resource-color: #6f6357; }
+
+    .theme-panel {
+      position: absolute;
+      top: 14px;
+      right: clamp(12px, 3vw, 34px);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+    }
+
+    .theme-panel span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding-left: 4px;
+    }
+
+    .theme-panel button {
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
     main {
       width: 100%;
       margin: 0 auto;
-      padding: 22px clamp(8px, 1.5vw, 24px) 42px;
+      padding: 10px clamp(8px, 1.5vw, 24px) 42px;
     }
 
     .page-shell {
       min-height: 100vh;
       position: relative;
       z-index: 2;
-      transform-origin: 0 50%;
-      transform-style: preserve-3d;
-      transition: transform 520ms cubic-bezier(.2, .78, .18, 1), filter 520ms ease, opacity 520ms ease;
-      will-change: transform;
     }
 
-    body.nav-open .page-shell {
-      transform: translate3d(300px, 0, -520px) rotateY(-24deg);
-      filter: saturate(0.85) brightness(0.82);
-      pointer-events: none;
-    }
-
-    .door-menu {
-      position: fixed;
-      inset: 0 auto 0 0;
-      width: min(320px, 84vw);
-      padding: 26px 18px;
-      z-index: 4;
-      background:
-        linear-gradient(145deg, rgba(17, 19, 25, 0.98), rgba(15, 29, 36, 0.96)),
-        radial-gradient(circle at 20% 10%, rgba(37, 217, 255, 0.22), transparent 32%);
-      border-right: 1px solid rgba(49, 215, 255, 0.28);
-      box-shadow: 30px 0 80px rgba(0, 0, 0, 0.55), inset -1px 0 0 rgba(141, 255, 63, 0.08);
-      transform: translate3d(-100%, 0, 0);
-      transition: transform 520ms cubic-bezier(.2, .78, .18, 1);
-      display: grid;
-      align-content: start;
-      gap: 18px;
-    }
-
-    body.nav-open .door-menu {
-      transform: translate3d(0, 0, 0);
-    }
-
-    .door-menu::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(90deg, transparent, rgba(49, 215, 255, 0.08));
-    }
-
-    .door-menu-header {
+    .central-menu {
+      width: min(980px, calc(100% - 24px));
+      margin: -20px auto 14px;
+      padding: 8px 10px;
+      position: relative;
+      z-index: 3;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 14px;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
     }
 
-    .door-menu-title {
-      display: grid;
-      gap: 2px;
-    }
-
-    .door-menu-title strong {
-      font-size: 18px;
-    }
-
-    .door-menu-title span,
-    .door-menu label span {
+    .central-menu label span {
       color: var(--muted);
       font-size: 11px;
       font-weight: 800;
@@ -179,55 +216,83 @@
       text-transform: uppercase;
     }
 
-    .door-nav {
-      display: grid;
-      gap: 10px;
-    }
-
-    .door-nav button {
-      width: 100%;
-      justify-content: flex-start;
-      min-height: 44px;
-    }
-
-    .door-nav button[aria-selected="true"] {
-      border-color: var(--accent);
-      background: linear-gradient(135deg, rgba(49, 215, 255, 0.2), rgba(141, 255, 63, 0.12));
-      box-shadow: 0 0 22px rgba(49, 215, 255, 0.18);
-    }
-
-    .door-menu label {
-      display: grid;
+    .central-menu label {
+      display: flex;
+      align-items: center;
       gap: 8px;
+      min-width: min(280px, 100%);
     }
 
-    .nav-scrim {
-      position: fixed;
-      inset: 0;
-      z-index: 3;
-      background: rgba(0, 0, 0, 0.42);
+    .central-menu select {
+      min-width: 190px;
+    }
+
+    .central-nav {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .central-nav button {
+      min-height: 34px;
+      position: relative;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 7px 10px;
+      color: var(--ink);
+      font-size: 13px;
+      letter-spacing: 0.01em;
+      overflow: hidden;
+    }
+
+    .central-nav button::before {
+      display: inline-block;
+      margin-right: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .central-nav button[data-section="rss"]::before { content: "01"; }
+    .central-nav button[data-section="heroes"]::before { content: "02"; }
+    .central-nav button[data-section="overlord"]::before { content: "03"; }
+    .central-nav button[data-section="calculator"]::before { content: "04"; }
+
+    .central-nav button::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
       opacity: 0;
-      pointer-events: none;
-      transition: opacity 420ms ease;
+      transition: transform 280ms ease, opacity 280ms ease;
+      transform-origin: 50% 50%;
     }
 
-    body.nav-open .nav-scrim {
+    .central-nav button::after { bottom: 2px; }
+
+    .central-nav button:hover::after,
+    .central-nav button:focus-visible::after,
+    .central-nav button[aria-selected="true"]::after {
+      transform: scaleX(1);
       opacity: 1;
-      pointer-events: auto;
     }
 
-    .menu-trigger {
-      min-width: auto;
-      padding-inline: 12px;
+    .central-nav button[aria-selected="true"] {
+      color: var(--accent);
     }
 
     .toolbar,
     .panel {
       background: var(--panel);
       border: 1px solid var(--line);
-      box-shadow: var(--shadow);
       border-radius: 8px;
-      backdrop-filter: blur(18px);
     }
 
     .toolbar {
@@ -236,9 +301,10 @@
       justify-content: space-between;
       gap: 12px;
       padding: 12px;
-      margin-top: -42px;
+      margin-top: 0;
       position: relative;
       flex-wrap: wrap;
+      border-left: 3px solid var(--accent);
     }
 
     .button-row {
@@ -247,49 +313,48 @@
       flex-wrap: wrap;
     }
 
-    .bento-dashboard {
-      display: grid;
-      grid-template-columns: minmax(280px, 1.4fr) repeat(2, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
+    .tab-actions {
+      position: relative;
     }
 
-    .bento-card {
-      min-height: 104px;
+    .tab-actions summary {
+      list-style: none;
+      border: 1px solid var(--line);
+      background: var(--button-bg);
+      color: var(--ink);
+      padding: 9px 12px;
+      min-height: 38px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .tab-actions summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .tab-actions summary::after {
+      content: " +";
+      color: var(--accent);
+    }
+
+    .tab-actions[open] summary::after {
+      content: " -";
+    }
+
+    .tab-actions-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 190px;
+      z-index: 8;
+      display: grid;
+      gap: 8px;
+      padding: 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 14px;
-      background: var(--card-bg);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .bento-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .bento-card strong {
-      font-size: 28px;
-      line-height: 1;
-    }
-
-    .mini-graph {
-      width: 100%;
-      height: 48px;
-      margin-top: 12px;
-    }
-
-    .mini-graph path {
-      fill: none;
-      stroke: var(--accent-2);
-      stroke-width: 3;
-      filter: drop-shadow(0 0 8px rgba(141, 255, 63, 0.5));
+      background: var(--panel);
     }
 
     button,
@@ -303,18 +368,17 @@
       font-weight: 700;
       cursor: pointer;
       font-size: 14px;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 0 18px rgba(49, 215, 255, 0.08);
     }
 
     button.primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      background: var(--accent);
       border-color: var(--accent);
-      color: #fff;
+      color: var(--bg);
     }
 
     button.danger {
       color: var(--danger);
-      border-color: #f0b4ac;
+      border-color: color-mix(in srgb, var(--danger) 52%, var(--line));
     }
 
     button:disabled {
@@ -334,6 +398,14 @@
       min-height: 38px;
     }
 
+    input:focus,
+    select:focus,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     input[type="number"] { text-align: right; }
     input[type="file"] { display: none; }
     #guideImageInput { display: block; }
@@ -346,6 +418,18 @@
       align-items: start;
     }
 
+    #rssSection {
+      margin-top: 8px;
+    }
+
+    .rss-sidebar {
+      gap: 12px;
+    }
+
+    .rss-main {
+      gap: 12px;
+    }
+
     .stack {
       display: grid;
       gap: 16px;
@@ -354,6 +438,38 @@
     .panel {
       padding: 16px;
       overflow: clip;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-header h2 {
+      margin-bottom: 0;
+    }
+
+    .panel-header h2::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      margin-right: 8px;
+      background: var(--accent);
+      vertical-align: -1px;
+    }
+
+    .panel-eyebrow {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     h2 {
@@ -367,6 +483,8 @@
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
     }
 
     label span {
@@ -413,14 +531,47 @@
     }
 
     .income-card {
-      margin-bottom: 12px;
       background: var(--metric-bg);
+      margin-bottom: 10px;
+      border-left-width: 3px;
     }
+
+    #incomeInputs .income-card:nth-child(1),
+    .totals .resource-total:nth-child(1) { border-left-color: #8b9a65; }
+    #incomeInputs .income-card:nth-child(2),
+    .totals .resource-total:nth-child(2) { border-left-color: #8d949c; }
+    #incomeInputs .income-card:nth-child(3),
+    .totals .resource-total:nth-child(3) { border-left-color: #d2b66f; }
+    #incomeInputs .income-card:nth-child(4),
+    .totals .resource-total:nth-child(4) { border-left-color: #6f6357; }
 
     .income-card h4,
     .resource-total h4 {
       margin: 0 0 10px;
       font-size: 15px;
+    }
+
+    .income-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .income-card-head h4 {
+      margin: 0;
+    }
+
+    .income-total-pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--ink);
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
     }
 
     .income-breakdown {
@@ -461,6 +612,8 @@
       font-size: 12px;
       text-align: left;
       white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     tbody tr:last-child td { border-bottom: 0; }
@@ -479,6 +632,14 @@
 
     .resource-total {
       background: var(--metric-bg);
+      border-left-width: 3px;
+    }
+
+    .resource-total h4 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .resource-total dl {
@@ -495,7 +656,7 @@
     .shortage { color: var(--danger); }
     .covered { color: var(--accent-2); }
     tr.editing-row td {
-      background: rgba(37, 217, 255, 0.08);
+      background: var(--soft);
     }
 
     .note {
@@ -510,7 +671,7 @@
       gap: 6px;
       border-radius: 999px;
       background: var(--soft);
-      color: #b8f3ff;
+      color: var(--ink);
       padding: 6px 10px;
       font-size: 13px;
       font-weight: 800;
@@ -533,7 +694,7 @@
 
     .app-layout {
       display: block;
-      margin-top: 16px;
+      margin-top: 12px;
       width: 100%;
     }
 
@@ -567,7 +728,7 @@
     .calc-button[aria-selected="true"] {
       border-color: var(--accent);
       background: var(--soft);
-      color: #b8f3ff;
+      color: var(--ink);
     }
 
     .calc-button::after {
@@ -577,8 +738,7 @@
       height: 3px;
       margin-top: 7px;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 12px rgba(49, 215, 255, 0.52);
+      background: var(--accent);
     }
 
     .quick-grid {
@@ -632,7 +792,7 @@
       width: 100%;
       aspect-ratio: 4 / 3;
       object-fit: contain;
-      background: #0a0f24;
+      background: #020203;
     }
 
     .guide-card footer {
@@ -650,11 +810,10 @@
       border-radius: 8px;
       overflow: hidden;
       background:
-        linear-gradient(rgba(49, 215, 255, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(49, 215, 255, 0.08) 1px, transparent 1px),
-        radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.16), transparent 48%),
-        rgba(7, 10, 27, 0.8);
-      background-size: 32px 32px, 32px 32px, auto, auto;
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px),
+        var(--metric-bg);
+      background-size: 32px 32px, 32px 32px, auto;
     }
 
     .map-point {
@@ -664,8 +823,7 @@
       border: 1px solid var(--accent);
       border-radius: 8px;
       padding: 6px 8px;
-      background: rgba(8, 13, 34, 0.9);
-      box-shadow: 0 0 18px rgba(49, 215, 255, 0.28);
+      background: var(--panel);
       font-size: 12px;
     }
 
@@ -680,108 +838,113 @@
 
     @media (max-width: 1100px) {
       .grid { grid-template-columns: 1fr; }
-      .bento-dashboard { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .toolbar { margin-top: -28px; }
     }
 
     @media (max-width: 620px) {
-      header { padding: 22px 12px 42px; }
+      header { padding: 58px 12px 42px; }
       main { padding-inline: 8px; }
       .panel { padding: 12px; }
-      body.nav-open .page-shell {
-        transform: translate3d(74vw, 0, -260px) rotateY(-18deg);
+      .panel-header {
+        display: block;
+        margin-bottom: 10px;
       }
+      #rssSection { margin-top: 4px; }
+      .income-card-head {
+        align-items: flex-start;
+      }
+      .central-menu { width: calc(100% - 16px); }
+      .central-menu label { width: 100%; }
+      .central-menu select { min-width: 0; }
+      .central-nav button {
+        flex: 1 1 135px;
+        width: auto;
+      }
+      .theme-panel button { width: auto; }
       .summary,
       .field-grid,
-      .quick-grid,
-      .bento-dashboard { grid-template-columns: 1fr; }
+      .quick-grid { grid-template-columns: 1fr; }
       .button-row,
       button,
       .file-label { width: 100%; }
+      .tab-actions { width: 100%; }
+      .tab-actions summary { width: 100%; }
+      .tab-actions-menu {
+        position: static;
+        margin-top: 8px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .page-shell,
-      .door-menu,
-      .nav-scrim {
+      .page-shell {
         transition: none;
-      }
-
-      body.nav-open .page-shell {
-        transform: translate3d(280px, 0, 0);
       }
     }
   </style>
 </head>
 <body>
-  <canvas id="particleCanvas" aria-hidden="true"></canvas>
-  <aside class="door-menu" id="doorMenu" aria-label="Workspace menu">
-    <div class="door-menu-header">
-      <div class="door-menu-title">
-        <strong>Command Menu</strong>
-        <span>Open door navigation</span>
-      </div>
-      <button id="closeDoorNavBtn" type="button" aria-label="Close menu">X</button>
-    </div>
-    <nav class="door-nav" aria-label="Primary sections">
-      <button class="section-pill" data-section="rss">RSS Planner</button>
-      <button class="section-pill" data-section="heroes">Hero Tracker</button>
-      <button class="section-pill" data-section="overlord">Overlord Tracker</button>
-      <button class="section-pill" data-section="calculator">Calculators</button>
-    </nav>
-    <label for="toolNavigator">
-      <span>All tools</span>
-      <select id="toolNavigator" aria-label="Jump to RSS, hero tools, Overlord tools, or calculator module"></select>
-    </label>
-  </aside>
-  <button class="nav-scrim" id="navScrim" type="button" aria-label="Close menu"></button>
   <div class="page-shell" id="pageShell">
     <header>
-      <h1>Last War helper</h1>
-      <p>Gump G0KU's personal toolset for planning, tracking, and squeezing more signal out of Last War progression.</p>
+      <div class="theme-panel" aria-label="Theme controls">
+        <span>Theme</span>
+        <button id="themeToggleBtn" type="button">Light Mode</button>
+      </div>
+      <div class="game-kicker">
+        <span>Last War: Survival</span>
+        <span>Command Toolset</span>
+      </div>
+      <h1>Field Operations Console</h1>
+      <p>Gump G0KU's personal calculators for resources, heroes, Overlord growth, and base progression.</p>
+      <div class="resource-strip" aria-label="Tracked resources">
+        <span class="resource-chip food">Food</span>
+        <span class="resource-chip iron">Iron</span>
+        <span class="resource-chip gold">Gold</span>
+        <span class="resource-chip oil">Oil</span>
+      </div>
     </header>
+
+    <nav class="central-menu" aria-label="Workspace menu">
+      <div class="central-nav" aria-label="Primary sections">
+        <button class="section-pill" data-section="rss">RSS Planner</button>
+        <button class="section-pill" data-section="heroes">Hero Tracker</button>
+        <button class="section-pill" data-section="overlord">Overlord Tracker</button>
+        <button class="section-pill" data-section="calculator">Calculators</button>
+      </div>
+      <label for="toolNavigator">
+        <span>All tools</span>
+        <select id="toolNavigator" aria-label="Jump to RSS, hero tools, Overlord tools, or calculator module"></select>
+      </label>
+    </nav>
 
     <main>
     <section class="toolbar" aria-label="Calculator actions">
-      <span class="pill">Autosaves in this browser</span>
+      <span class="pill">Local Save Active</span>
       <div class="button-row">
-        <button class="menu-trigger primary" id="openDoorNavBtn" type="button" aria-expanded="false" aria-controls="doorMenu">Menu</button>
         <button class="primary" id="addItemBtn">Add Upgrade</button>
-        <button id="themeToggleBtn" type="button">Light Mode</button>
-        <button id="exportJsonBtn">Export JSON</button>
-        <label class="file-label" for="importJsonInput">Import JSON</label>
-        <input id="importJsonInput" type="file" accept="application/json">
-        <button class="danger" id="resetBtn">Reset</button>
+        <details class="tab-actions" id="tabActionsMenu">
+          <summary>Tab Actions</summary>
+          <div class="tab-actions-menu">
+            <button id="exportJsonBtn" type="button">Export JSON</button>
+            <label class="file-label" for="importJsonInput">Import JSON</label>
+            <input id="importJsonInput" type="file" accept="application/json">
+            <button class="danger" id="resetBtn" type="button">Reset</button>
+          </div>
+        </details>
         <span class="status-text" id="importStatus"></span>
       </div>
-    </section>
-
-    <section class="bento-dashboard" aria-label="Dashboard metrics">
-      <article class="bento-card">
-        <span>Live Players</span>
-        <strong id="livePlayerCount">12,480</strong>
-        <svg class="mini-graph" viewBox="0 0 240 48" aria-hidden="true">
-          <path d="M4 35 C 38 8, 62 44, 94 22 S 154 14, 184 28 S 220 12, 236 20"></path>
-        </svg>
-      </article>
-      <article class="bento-card">
-        <span>Tool Modules</span>
-        <strong id="moduleCount">0</strong>
-      </article>
-      <article class="bento-card">
-        <span>Active Workspace</span>
-        <strong id="activeWorkspaceLabel">RSS</strong>
-      </article>
     </section>
 
     <div class="app-layout">
       <div class="stack">
         <div class="grid calc-section" id="rssSection">
-          <aside class="stack">
+          <aside class="stack rss-sidebar">
             <section class="panel">
-              <h2>Plan Settings</h2>
-              <p class="note">RSS Planner is its own workspace for Food, Iron, Gold, and Oil.</p>
+              <div class="panel-header">
+                <div>
+                  <span class="panel-eyebrow">Setup</span>
+                  <h2>Plan Settings</h2>
+                </div>
+              </div>
               <div class="field-grid">
                 <label>
                   <span>Plan name</span>
@@ -796,21 +959,29 @@
                   <input id="resourceChestPool" type="number" min="0" step="any" title="Shared flexible RSS that can cover Food, Iron, or Gold shortages">
                 </label>
               </div>
-
-              <h3>Resources</h3>
-              <p class="note">Resources are fixed to Food, Iron, Gold, and Oil. Optional resource chests are distributed only across Food, Iron, and Gold gaps.</p>
+              <p class="note">Food, Iron, Gold, and Oil are fixed resources. Optional chests are applied only to Food, Iron, and Gold gaps.</p>
             </section>
 
             <section class="panel">
-              <h2>Income Sources</h2>
+              <div class="panel-header">
+                <div>
+                  <span class="panel-eyebrow">Inventory</span>
+                  <h2>Income Sources</h2>
+                </div>
+              </div>
               <div id="incomeInputs"></div>
-              <p class="note">Enter your total production rate per hour for each resource, then set how many hours per day to count.</p>
+              <p class="note">Use total production per hour and hours per day; the cards calculate daily income live.</p>
             </section>
           </aside>
 
-          <section class="stack">
+          <section class="stack rss-main">
             <section class="panel">
-              <h2>Upgrade Plan</h2>
+              <div class="panel-header">
+                <div>
+                  <span class="panel-eyebrow">Planner</span>
+                  <h2>Upgrade Plan</h2>
+                </div>
+              </div>
               <div class="summary">
                 <div class="metric">
                   <span>Upgrades planned</span>
@@ -840,7 +1011,12 @@
             </section>
 
             <section class="panel">
-              <h2>RSS Totals</h2>
+              <div class="panel-header">
+                <div>
+                  <span class="panel-eyebrow">Projection</span>
+                  <h2>RSS Totals</h2>
+                </div>
+              </div>
               <div id="totals" class="totals"></div>
             </section>
           </section>
@@ -865,22 +1041,10 @@
               <span>Hero name</span>
               <input id="heroName" type="text" placeholder="Kimberly, Tesla, DVA">
             </label>
-            <label>
-              <span>Current level</span>
-              <input id="heroLevel" type="number" min="0" step="1">
-            </label>
-            <label>
-              <span>Target level</span>
-              <input id="heroTargetLevel" type="number" min="0" step="1">
-            </label>
-            <label>
-              <span>Owned EXP</span>
-              <input id="heroOwnedExp" type="number" min="0" step="any">
-            </label>
-            <label>
-              <span>EXP per level after 175</span>
-              <input id="heroExpBeyondRate" type="number" min="0" step="any" title="Optional rate used only when target level is above the built-in table">
-            </label>
+          </div>
+
+          <h3>Star Level</h3>
+          <div class="field-grid">
             <label>
               <span>From Star</span>
               <input id="heroFromStar" type="number" min="0" max="5" step="1" title="Current hero star, 0 to 5">
@@ -901,21 +1065,41 @@
               <span>Owned hero shards</span>
               <input id="heroOwnedStarShards" type="number" min="0" step="any">
             </label>
+          </div>
+
+          <h3>Levels</h3>
+          <div class="field-grid">
             <label>
-              <span>Weapon step (current)</span>
+              <span>Current level</span>
+              <input id="heroLevel" type="number" min="0" step="1">
+            </label>
+            <label>
+              <span>Target level</span>
+              <input id="heroTargetLevel" type="number" min="0" step="1">
+            </label>
+            <label>
+              <span>Owned EXP</span>
+              <input id="heroOwnedExp" type="number" min="0" step="any">
+            </label>
+            <label>
+              <span>EXP per level after 175</span>
+              <input id="heroExpBeyondRate" type="number" min="0" step="any" title="Optional rate used only when target level is above the built-in table">
+            </label>
+          </div>
+
+          <h3>Exclusive Weapon</h3>
+          <div class="field-grid">
+            <label>
+              <span>Current EW level</span>
               <input id="heroWeaponCurrent" type="number" min="0" step="1" title="Current generic weapon upgrade step">
             </label>
             <label>
-              <span>Weapon step (target)</span>
+              <span>Target EW level</span>
               <input id="heroWeaponTarget" type="number" min="0" step="1">
             </label>
             <label>
               <span>Owned weapon shards</span>
               <input id="heroOwnedWeaponShards" type="number" min="0" step="any">
-            </label>
-            <label>
-              <span>Role / squad</span>
-              <input id="heroRole" type="text" placeholder="Main squad, air, wall, rally">
             </label>
           </div>
           <div class="button-row">
@@ -928,7 +1112,6 @@
               <thead>
                 <tr>
                   <th>Hero</th>
-                  <th>Role</th>
                   <th>Level</th>
                   <th>EXP needed</th>
                   <th>Max HQ</th>
@@ -968,13 +1151,33 @@
               <span>Owned promotion shards</span>
               <input id="overlordOwnedShards" type="number" min="0" step="any">
             </label>
+          </div>
+
+          <h3>Training Levels</h3>
+          <div class="field-grid">
             <label>
-              <span>Training level current</span>
-              <input id="overlordTrainingCurrent" type="number" min="1" max="801" step="1">
+              <span>Attack current</span>
+              <input id="overlordTrainingAttackCurrent" type="number" min="1" max="801" step="1">
             </label>
             <label>
-              <span>Training level target</span>
-              <input id="overlordTrainingTarget" type="number" min="1" max="801" step="1">
+              <span>Attack target</span>
+              <input id="overlordTrainingAttackTarget" type="number" min="1" max="801" step="1">
+            </label>
+            <label>
+              <span>Defense current</span>
+              <input id="overlordTrainingDefenseCurrent" type="number" min="1" max="801" step="1">
+            </label>
+            <label>
+              <span>Defense target</span>
+              <input id="overlordTrainingDefenseTarget" type="number" min="1" max="801" step="1">
+            </label>
+            <label>
+              <span>HP current</span>
+              <input id="overlordTrainingHpCurrent" type="number" min="1" max="801" step="1">
+            </label>
+            <label>
+              <span>HP target</span>
+              <input id="overlordTrainingHpTarget" type="number" min="1" max="801" step="1">
             </label>
             <label>
               <span>Owned guidebooks</span>
@@ -984,18 +1187,50 @@
               <span>Owned certificates</span>
               <input id="overlordOwnedCertificates" type="number" min="0" step="any">
             </label>
+          </div>
+
+          <h3>Skills</h3>
+          <div class="field-grid">
             <label>
-              <span>Skill level current</span>
-              <input id="overlordSkillCurrent" type="number" min="1" max="40" step="1">
+              <span>Brutal Roar current</span>
+              <input id="overlordSkillBrutalRoarCurrent" type="number" min="1" max="40" step="1">
             </label>
             <label>
-              <span>Skill level target</span>
-              <input id="overlordSkillTarget" type="number" min="1" max="40" step="1">
+              <span>Brutal Roar target</span>
+              <input id="overlordSkillBrutalRoarTarget" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Overlord's Armor current</span>
+              <input id="overlordSkillOverlordsArmorCurrent" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Overlord's Armor target</span>
+              <input id="overlordSkillOverlordsArmorTarget" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Furious Hunt current</span>
+              <input id="overlordSkillFuriousHuntCurrent" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Furious Hunt target</span>
+              <input id="overlordSkillFuriousHuntTarget" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Riot Shot current</span>
+              <input id="overlordSkillRiotShotCurrent" type="number" min="1" max="40" step="1">
+            </label>
+            <label>
+              <span>Riot Shot target</span>
+              <input id="overlordSkillRiotShotTarget" type="number" min="1" max="40" step="1">
             </label>
             <label>
               <span>Owned skill badges</span>
               <input id="overlordOwnedSkillBadges" type="number" min="0" step="any">
             </label>
+          </div>
+
+          <h3>Bond Rating</h3>
+          <div class="field-grid">
             <label>
               <span>Bond rating current</span>
               <select id="overlordBondCurrent"></select>
@@ -1335,6 +1570,19 @@
       81:"Training Level 450",91:"Training Level 500"
     };
 
+    const OVERLORD_TRAINING_STATS = [
+      { key: "attack", label: "Attack" },
+      { key: "defense", label: "Defense" },
+      { key: "hp", label: "HP" }
+    ];
+
+    const OVERLORD_SKILLS = [
+      { key: "brutalRoar", label: "Brutal Roar" },
+      { key: "overlordsArmor", label: "Overlord's Armor" },
+      { key: "furiousHunt", label: "Furious Hunt" },
+      { key: "riotShot", label: "Riot Shot" }
+    ];
+
     const defaultState = {
       planName: "RSS Plan",
       daysLeft: 14,
@@ -1350,12 +1598,19 @@
         promotionCurrent: 0,
         promotionTarget: 60,
         ownedShards: 0,
-        trainingCurrent: 1,
-        trainingTarget: 801,
+        training: {
+          attack: { current: 1, target: 801 },
+          defense: { current: 1, target: 801 },
+          hp: { current: 1, target: 801 }
+        },
         ownedGuidebooks: 0,
         ownedCertificates: 0,
-        skillCurrent: 1,
-        skillTarget: 40,
+        skills: {
+          brutalRoar: { current: 1, target: 40 },
+          overlordsArmor: { current: 1, target: 40 },
+          furiousHunt: { current: 1, target: 40 },
+          riotShot: { current: 1, target: 40 }
+        },
         ownedSkillBadges: 0,
         bondCurrent: 0,
         bondTarget: 120,
@@ -1485,7 +1740,6 @@
       return {
         id: hero.id || crypto.randomUUID(),
         name: hero.name || "Hero",
-        role: hero.role || "",
         level: toNumber(hero.level),
         targetLevel: toNumber(hero.targetLevel || hero.level),
         ownedExp: toNumber(hero.ownedExp),
@@ -1498,18 +1752,34 @@
       };
     }
 
+    function normalizeOverlordLevelTrack(track, fallbackCurrent, fallbackTarget, maxLevel) {
+      const current = Math.min(maxLevel, Math.max(1, Math.floor(toNumber(track?.current ?? fallbackCurrent ?? 1))));
+      const target = Math.min(maxLevel, Math.max(1, Math.floor(toNumber(track?.target ?? fallbackTarget ?? current))));
+      return { current, target };
+    }
+
     function normalizeOverlord(overlord) {
+      const legacyTrainingCurrent = overlord.trainingCurrent;
+      const legacyTrainingTarget = overlord.trainingTarget ?? overlord.trainingCurrent;
+      const legacySkillCurrent = overlord.skillCurrent;
+      const legacySkillTarget = overlord.skillTarget ?? overlord.skillCurrent;
+      const training = {};
+      OVERLORD_TRAINING_STATS.forEach((stat) => {
+        training[stat.key] = normalizeOverlordLevelTrack(overlord.training?.[stat.key], legacyTrainingCurrent, legacyTrainingTarget, 801);
+      });
+      const skills = {};
+      OVERLORD_SKILLS.forEach((skill) => {
+        skills[skill.key] = normalizeOverlordLevelTrack(overlord.skills?.[skill.key], legacySkillCurrent, legacySkillTarget, 40);
+      });
       return {
         name: overlord.name || "Main Overlord",
         promotionCurrent: Math.min(60, Math.max(0, Math.floor(toNumber(overlord.promotionCurrent)))),
         promotionTarget: Math.min(60, Math.max(0, Math.floor(toNumber(overlord.promotionTarget ?? overlord.promotionCurrent)))),
         ownedShards: toNumber(overlord.ownedShards),
-        trainingCurrent: Math.min(801, Math.max(1, Math.floor(toNumber(overlord.trainingCurrent || 1)))),
-        trainingTarget: Math.min(801, Math.max(1, Math.floor(toNumber(overlord.trainingTarget || overlord.trainingCurrent || 1)))),
+        training,
         ownedGuidebooks: toNumber(overlord.ownedGuidebooks),
         ownedCertificates: toNumber(overlord.ownedCertificates),
-        skillCurrent: Math.min(40, Math.max(1, Math.floor(toNumber(overlord.skillCurrent || 1)))),
-        skillTarget: Math.min(40, Math.max(1, Math.floor(toNumber(overlord.skillTarget || overlord.skillCurrent || 1)))),
+        skills,
         ownedSkillBadges: toNumber(overlord.ownedSkillBadges),
         bondCurrent: Math.min(120, Math.max(0, Math.floor(toNumber(overlord.bondCurrent)))),
         bondTarget: Math.min(120, Math.max(0, Math.floor(toNumber(overlord.bondTarget ?? overlord.bondCurrent)))),
@@ -1548,11 +1818,10 @@
     }
 
     function format(value) {
-      return numberFormatter.format(Math.max(0, value));
-    }
-
-    function formatRss(value) {
-      const amount = Math.max(0, toNumber(value));
+      const numeric = Number(value);
+      if (numeric === Infinity) return "∞";
+      if (!Number.isFinite(numeric)) return "0";
+      const amount = Math.max(0, numeric);
       const units = [
         { suffix: "B", value: 1000000000 },
         { suffix: "M", value: 1000000 },
@@ -1561,6 +1830,10 @@
       const unit = units.find((item) => amount >= item.value);
       if (!unit) return numberFormatter.format(amount);
       return `${numberFormatter.format(amount / unit.value)}${unit.suffix}`;
+    }
+
+    function formatRss(value) {
+      return format(value);
     }
 
     function capitalize(value) {
@@ -1659,9 +1932,8 @@
     }
 
     function renderDashboard() {
-      $("#moduleCount").textContent = format(calculatorDefinitions.length + 3);
-      $("#activeWorkspaceLabel").textContent = activeSectionLabel();
-      $("#livePlayerCount").textContent = format(12000 + ((Date.now() / 1000) % 900));
+      const tabSummary = $("#tabActionsMenu summary");
+      if (tabSummary) tabSummary.textContent = `${activeSectionLabel()} Actions`;
     }
 
     function activeSectionLabel() {
@@ -1689,18 +1961,7 @@
       });
       syncToolNavigatorSelect();
       renderDashboard();
-      closeDoorNav();
       if (shouldSave) saveState();
-    }
-
-    function openDoorNav() {
-      document.body.classList.add("nav-open");
-      $("#openDoorNavBtn").setAttribute("aria-expanded", "true");
-    }
-
-    function closeDoorNav() {
-      document.body.classList.remove("nav-open");
-      $("#openDoorNavBtn").setAttribute("aria-expanded", "false");
     }
 
     let toolNavigatorBound = false;
@@ -1769,7 +2030,10 @@
         const card = document.createElement("article");
         card.className = "income-card";
         card.innerHTML = `
-          <h4>${escapeHtml(resource.name)}</h4>
+          <div class="income-card-head">
+            <h4>${escapeHtml(resource.name)}</h4>
+            <span class="income-total-pill" data-income-total>${formatRss(breakdown.total)}/day</span>
+          </div>
           <div class="field-grid">
             <label>
               <span>Owned</span>
@@ -1812,6 +2076,8 @@
     function updateIncomeCardBreakdown(card, resource) {
       const breakdown = incomeBreakdown(resource);
       const values = card.querySelectorAll(".income-breakdown dd");
+      const totalPill = card.querySelector("[data-income-total]");
+      if (totalPill) totalPill.textContent = `${formatRss(breakdown.total)}/day`;
       if (values[0]) values[0].textContent = `${formatRss(breakdown.manual)}/day`;
       if (values[1]) values[1].textContent = `${formatRss(breakdown.production)}/day`;
       if (values[2]) values[2].textContent = `${formatRss(breakdown.total)}/day`;
@@ -1912,10 +2178,11 @@
         const wait = daysNeeded(shortage, income);
         const statusClass = shortage > 0 ? "shortage" : "covered";
         const waitLabel = wait === Infinity ? "No income" : `${wait}d`;
+        const projectedCovered = afterChestGap <= 0;
         const card = document.createElement("article");
         card.className = "resource-total";
         card.innerHTML = `
-          <h4>${escapeHtml(resource.name)}</h4>
+          <h4>${escapeHtml(resource.name)} <span class="income-total-pill ${projectedCovered ? "covered" : "shortage"}">${projectedCovered ? "Covered" : "Short"}</span></h4>
           <dl>
             <dt>Needed</dt><dd title="${format(need)}">${formatRss(need)}</dd>
             <dt>Owned</dt><dd title="${format(resource.owned)}">${formatRss(resource.owned)}</dd>
@@ -2419,7 +2686,6 @@
         return `
           <tr ${isEditing ? 'class="editing-row"' : ""}>
             <td>${escapeHtml(hero.name)}</td>
-            <td>${escapeHtml(hero.role || "-")}</td>
             <td title="Levels">${format(hero.level)} → ${format(hero.targetLevel)}</td>
             <td title="${escapeHtml(expTitle)}">${format(needs.expNeed)}</td>
             <td title="${escapeHtml(hqTitle)}">${format(needs.maxHq)}</td>
@@ -2449,7 +2715,6 @@
     function heroFormValues() {
       return normalizeHero({
         name: $("#heroName").value,
-        role: $("#heroRole").value,
         level: $("#heroLevel").value,
         targetLevel: $("#heroTargetLevel").value,
         ownedExp: $("#heroOwnedExp").value,
@@ -2464,7 +2729,6 @@
 
     function setHeroForm(hero) {
       $("#heroName").value = hero.name ?? "";
-      $("#heroRole").value = hero.role ?? "";
       $("#heroLevel").value = hero.level ?? "";
       $("#heroTargetLevel").value = hero.targetLevel ?? "";
       $("#heroOwnedExp").value = hero.ownedExp ?? "";
@@ -2482,7 +2746,7 @@
 
     function clearHeroForm() {
       [
-        "#heroName", "#heroRole", "#heroLevel", "#heroTargetLevel", "#heroOwnedExp",
+        "#heroName", "#heroLevel", "#heroTargetLevel", "#heroOwnedExp",
         "#heroFromStar", "#heroFromTier", "#heroToStar", "#heroToTier", "#heroOwnedStarShards",
         "#heroWeaponCurrent", "#heroWeaponTarget", "#heroOwnedWeaponShards"
       ].forEach((selector) => {
@@ -2599,17 +2863,30 @@
 
     function overlordNeeds() {
       const o = state.overlord;
-      const training = overlordTrainingNeeds(o.trainingCurrent, o.trainingTarget);
+      const trainingDetails = OVERLORD_TRAINING_STATS.map((stat) => {
+        const track = o.training[stat.key];
+        const needs = overlordTrainingNeeds(track.current, track.target);
+        return { ...stat, ...track, ...needs };
+      });
+      const skillDetails = OVERLORD_SKILLS.map((skill) => {
+        const track = o.skills[skill.key];
+        const badges = overlordSkillNeeds(track.current, track.target);
+        return { ...skill, ...track, badges };
+      });
       const promotion = overlordPromotionNeeds(o.promotionCurrent, o.promotionTarget);
-      const skills = overlordSkillNeeds(o.skillCurrent, o.skillTarget);
       const bond = overlordBondNeeds(o.bondCurrent, o.bondTarget);
+      const guidebooks = trainingDetails.reduce((sum, item) => sum + item.guidebooks, 0);
+      const certificates = trainingDetails.reduce((sum, item) => sum + item.certificates, 0);
+      const skills = skillDetails.reduce((sum, item) => sum + item.badges, 0);
       return {
+        trainingDetails,
+        skillDetails,
         promotion,
         promotionShort: Math.max(0, promotion - o.ownedShards),
-        guidebooks: training.guidebooks,
-        guidebooksShort: Math.max(0, training.guidebooks - o.ownedGuidebooks),
-        certificates: training.certificates,
-        certificatesShort: Math.max(0, training.certificates - o.ownedCertificates),
+        guidebooks,
+        guidebooksShort: Math.max(0, guidebooks - o.ownedGuidebooks),
+        certificates,
+        certificatesShort: Math.max(0, certificates - o.ownedCertificates),
         skills,
         skillsShort: Math.max(0, skills - o.ownedSkillBadges),
         bond,
@@ -2626,18 +2903,26 @@
         overlordPromotionCurrent: "promotionCurrent",
         overlordPromotionTarget: "promotionTarget",
         overlordOwnedShards: "ownedShards",
-        overlordTrainingCurrent: "trainingCurrent",
-        overlordTrainingTarget: "trainingTarget",
         overlordOwnedGuidebooks: "ownedGuidebooks",
         overlordOwnedCertificates: "ownedCertificates",
-        overlordSkillCurrent: "skillCurrent",
-        overlordSkillTarget: "skillTarget",
         overlordOwnedSkillBadges: "ownedSkillBadges",
         overlordOwnedBondBadges: "ownedBondBadges"
       };
       Object.entries(fieldMap).forEach(([id, field]) => {
         const input = $(`#${id}`);
         if (input && document.activeElement !== input) input.value = o[field] ?? "";
+      });
+      OVERLORD_TRAINING_STATS.forEach((stat) => {
+        const current = $(`#overlordTraining${capitalize(stat.key)}Current`);
+        const target = $(`#overlordTraining${capitalize(stat.key)}Target`);
+        if (current && document.activeElement !== current) current.value = o.training[stat.key].current;
+        if (target && document.activeElement !== target) target.value = o.training[stat.key].target;
+      });
+      OVERLORD_SKILLS.forEach((skill) => {
+        const current = $(`#overlordSkill${capitalize(skill.key)}Current`);
+        const target = $(`#overlordSkill${capitalize(skill.key)}Target`);
+        if (current && document.activeElement !== current) current.value = o.skills[skill.key].current;
+        if (target && document.activeElement !== target) target.value = o.skills[skill.key].target;
       });
       const bondOptions = Array.from({ length: 121 }, (_, index) => `<option value="${index}">${escapeHtml(overlordBondName(index))}</option>`).join("");
       ["overlordBondCurrent", "overlordBondTarget"].forEach((id) => {
@@ -2651,22 +2936,27 @@
       const promoFrom = overlordPromotionInfo(o.promotionCurrent);
       const promoTo = overlordPromotionInfo(o.promotionTarget);
       const totalShort = needs.promotionShort + needs.guidebooksShort + needs.certificatesShort + needs.skillsShort + needs.bondShort;
+      const trainingPath = `${format(Math.min(...needs.trainingDetails.map((item) => item.current)))} to ${format(Math.max(...needs.trainingDetails.map((item) => item.target)))}`;
+      const skillPath = `${format(Math.min(...needs.skillDetails.map((item) => item.current)))} to ${format(Math.max(...needs.skillDetails.map((item) => item.target)))}`;
       $("#overlordSummary").innerHTML = [
         { label: "Promotion rank", value: `${promoFrom.rank} to ${promoTo.rank}` },
-        { label: "Training path", value: `${format(o.trainingCurrent)} to ${format(o.trainingTarget)}` },
-        { label: "Skill path", value: `${format(o.skillCurrent)} to ${format(o.skillTarget)}` },
+        { label: "Training spread", value: trainingPath },
+        { label: "Skill spread", value: skillPath },
         { label: "Bond path", value: `${overlordBondName(o.bondCurrent)} to ${overlordBondName(o.bondTarget)}` },
         { label: "Total short", value: format(totalShort) },
         { label: "Status", value: totalShort <= 0 ? "Ready" : "Needs materials" }
       ].map((item) => `<div class="result-card"><span>${item.label}</span><strong>${escapeHtml(item.value)}</strong></div>`).join("");
 
-      $("#overlordRows").innerHTML = [
+      const rows = [
         ["Promotion", `${format(o.promotionCurrent)} to ${format(o.promotionTarget)}`, needs.promotion, o.ownedShards, needs.promotionShort],
-        ["Training guidebooks", `${format(o.trainingCurrent)} to ${format(o.trainingTarget)}`, needs.guidebooks, o.ownedGuidebooks, needs.guidebooksShort],
-        ["Training certificates", `${format(o.trainingCurrent)} to ${format(o.trainingTarget)}`, needs.certificates, o.ownedCertificates, needs.certificatesShort],
-        ["Skills", `${format(o.skillCurrent)} to ${format(o.skillTarget)}`, needs.skills, o.ownedSkillBadges, needs.skillsShort],
+        ...needs.trainingDetails.flatMap((item) => [
+          [`${item.label} guidebooks`, `${format(item.current)} to ${format(item.target)}`, item.guidebooks, o.ownedGuidebooks, Math.max(0, item.guidebooks - o.ownedGuidebooks)],
+          [`${item.label} certificates`, `${format(item.current)} to ${format(item.target)}`, item.certificates, o.ownedCertificates, Math.max(0, item.certificates - o.ownedCertificates)]
+        ]),
+        ...needs.skillDetails.map((item) => [`${item.label} skill badges`, `${format(item.current)} to ${format(item.target)}`, item.badges, o.ownedSkillBadges, Math.max(0, item.badges - o.ownedSkillBadges)]),
         ["Bond rating", `${overlordBondName(o.bondCurrent)} to ${overlordBondName(o.bondTarget)}`, needs.bond, o.ownedBondBadges, needs.bondShort]
-      ].map(([category, path, needed, owned, short]) => `
+      ];
+      $("#overlordRows").innerHTML = rows.map(([category, path, needed, owned, short]) => `
         <tr>
           <td>${escapeHtml(category)}</td>
           <td>${escapeHtml(path)}</td>
@@ -2687,7 +2977,18 @@
     }
 
     function updateOverlordField(field, value) {
-      state.overlord[field] = field === "name" ? value : toNumber(value);
+      const normalizedValue = field === "name" ? value : toNumber(value);
+      const path = field.split(".");
+      if (path.length === 1) {
+        state.overlord[field] = normalizedValue;
+      } else {
+        let target = state.overlord;
+        path.slice(0, -1).forEach((part) => {
+          target[part] = target[part] || {};
+          target = target[part];
+        });
+        target[path.at(-1)] = normalizedValue;
+      }
       state.overlord = normalizeOverlord(state.overlord);
       renderOverlordTracker();
       renderDashboard();
@@ -2798,6 +3099,7 @@
     }
 
     function exportJson() {
+      closeTabActionsMenu();
       const exportData = {
         app: "last-war-rss-calculator",
         version: EXPORT_VERSION,
@@ -2815,6 +3117,7 @@
           const parsed = JSON.parse(reader.result);
           state = normalizeState(parsed.state || parsed);
           render();
+          closeTabActionsMenu();
           $("#importStatus").textContent = "Imported";
           window.setTimeout(() => $("#importStatus").textContent = "", 2200);
         } catch {
@@ -2824,8 +3127,14 @@
       reader.readAsText(file);
     }
 
+    function closeTabActionsMenu() {
+      const menu = $("#tabActionsMenu");
+      if (menu) menu.open = false;
+    }
+
     function resetCalculator() {
       if (!confirm("Reset this calculator to the RSS starter template?")) return;
+      closeTabActionsMenu();
       state = cloneDefaultState();
       render();
     }
@@ -2897,76 +3206,6 @@
         .replaceAll("'", "&#039;");
     }
 
-    function initParticles() {
-      const canvas = $("#particleCanvas");
-      const context = canvas.getContext("2d");
-      const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-      let particles = [];
-
-      function resize() {
-        canvas.width = window.innerWidth * devicePixelRatio;
-        canvas.height = window.innerHeight * devicePixelRatio;
-        canvas.style.width = `${window.innerWidth}px`;
-        canvas.style.height = `${window.innerHeight}px`;
-        context.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-        particles = Array.from({ length: Math.min(120, Math.floor(window.innerWidth / 12)) }, () => ({
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          vx: (Math.random() - 0.5) * 0.35,
-          vy: (Math.random() - 0.5) * 0.35,
-          size: 1 + Math.random() * 2.5
-        }));
-      }
-
-      function draw() {
-        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        particles.forEach((particle, index) => {
-          const dx = particle.x - pointer.x;
-          const dy = particle.y - pointer.y;
-          const distance = Math.max(1, Math.hypot(dx, dy));
-          const force = Math.min(2.4, 90 / distance);
-          particle.x += particle.vx + (dx / distance) * force * 0.14;
-          particle.y += particle.vy + (dy / distance) * force * 0.14;
-          if (particle.x < 0) particle.x = window.innerWidth;
-          if (particle.x > window.innerWidth) particle.x = 0;
-          if (particle.y < 0) particle.y = window.innerHeight;
-          if (particle.y > window.innerHeight) particle.y = 0;
-
-          context.beginPath();
-          context.fillStyle = index % 3 === 0 ? "rgba(168,85,247,.72)" : "rgba(49,215,255,.68)";
-          context.shadowColor = index % 3 === 0 ? "#a855f7" : "#31d7ff";
-          context.shadowBlur = 10;
-          context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-          context.fill();
-        });
-
-        context.shadowBlur = 0;
-        context.strokeStyle = "rgba(49,215,255,.12)";
-        for (let a = 0; a < particles.length; a += 1) {
-          for (let b = a + 1; b < particles.length; b += 1) {
-            const distance = Math.hypot(particles[a].x - particles[b].x, particles[a].y - particles[b].y);
-            if (distance < 110) {
-              context.globalAlpha = 1 - (distance / 110);
-              context.beginPath();
-              context.moveTo(particles[a].x, particles[a].y);
-              context.lineTo(particles[b].x, particles[b].y);
-              context.stroke();
-            }
-          }
-        }
-        context.globalAlpha = 1;
-        requestAnimationFrame(draw);
-      }
-
-      window.addEventListener("resize", resize);
-      window.addEventListener("mousemove", (event) => {
-        pointer.x = event.clientX;
-        pointer.y = event.clientY;
-      });
-      resize();
-      draw();
-    }
-
     $("#planName").addEventListener("input", (event) => {
       state.planName = event.target.value;
       saveState();
@@ -2985,9 +3224,6 @@
     });
     $("#addItemBtn").addEventListener("click", addItem);
     $("#themeToggleBtn").addEventListener("click", toggleTheme);
-    $("#openDoorNavBtn").addEventListener("click", openDoorNav);
-    $("#closeDoorNavBtn").addEventListener("click", closeDoorNav);
-    $("#navScrim").addEventListener("click", closeDoorNav);
     $("#exportJsonBtn").addEventListener("click", exportJson);
     $("#importJsonInput").addEventListener("change", (event) => importJson(event.target.files[0]));
     $("#resetBtn").addEventListener("click", resetCalculator);
@@ -3009,12 +3245,22 @@
       ["overlordPromotionCurrent", "promotionCurrent"],
       ["overlordPromotionTarget", "promotionTarget"],
       ["overlordOwnedShards", "ownedShards"],
-      ["overlordTrainingCurrent", "trainingCurrent"],
-      ["overlordTrainingTarget", "trainingTarget"],
+      ["overlordTrainingAttackCurrent", "training.attack.current"],
+      ["overlordTrainingAttackTarget", "training.attack.target"],
+      ["overlordTrainingDefenseCurrent", "training.defense.current"],
+      ["overlordTrainingDefenseTarget", "training.defense.target"],
+      ["overlordTrainingHpCurrent", "training.hp.current"],
+      ["overlordTrainingHpTarget", "training.hp.target"],
       ["overlordOwnedGuidebooks", "ownedGuidebooks"],
       ["overlordOwnedCertificates", "ownedCertificates"],
-      ["overlordSkillCurrent", "skillCurrent"],
-      ["overlordSkillTarget", "skillTarget"],
+      ["overlordSkillBrutalRoarCurrent", "skills.brutalRoar.current"],
+      ["overlordSkillBrutalRoarTarget", "skills.brutalRoar.target"],
+      ["overlordSkillOverlordsArmorCurrent", "skills.overlordsArmor.current"],
+      ["overlordSkillOverlordsArmorTarget", "skills.overlordsArmor.target"],
+      ["overlordSkillFuriousHuntCurrent", "skills.furiousHunt.current"],
+      ["overlordSkillFuriousHuntTarget", "skills.furiousHunt.target"],
+      ["overlordSkillRiotShotCurrent", "skills.riotShot.current"],
+      ["overlordSkillRiotShotTarget", "skills.riotShot.target"],
       ["overlordOwnedSkillBadges", "ownedSkillBadges"],
       ["overlordBondCurrent", "bondCurrent"],
       ["overlordBondTarget", "bondTarget"],
@@ -3026,11 +3272,7 @@
     document.querySelectorAll("[data-section]").forEach((button) => {
       button.addEventListener("click", (event) => switchSection(event.currentTarget.dataset.section));
     });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeDoorNav();
-    });
 
-    initParticles();
     render();
   </script>
 </body>
